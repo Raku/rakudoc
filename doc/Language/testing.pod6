@@ -1,0 +1,195 @@
+=begin pod :tag<tutorial>
+
+=TITLE Testing
+
+=SUBTITLE Writing and running tests in Perl 6
+
+
+Testing code is an integral part of software development. Tests provide
+automated, repeatable verifications of code behavior, and ensures your
+code works as expected.
+
+In Perl 6, the L<Test|/type/Test> module provides a testing framework, used also
+by Perl 6's official spectest suite.
+
+The testing functions emit output conforming to the L<Test Anything Protocol|https://testanything.org>. In general, they are used in sink context:
+
+=for code :preamble<use Test; my ($meta,$relaxed-name); sub check-name($meta,:$relaxed-name){}>
+ok check-name($meta, :$relaxed-name), "name has a hyphen rather than '::'"
+
+but all functions also return as a Boolean if the test has been successful or not, which can be used to print a message if the test fails:
+
+=begin code :preamble<use Test; my ($meta,$relaxed-name); sub check-name($meta,:$relaxed-name){}>
+ok check-name($meta, :$relaxed-name), "name has a hyphen rather than '::'" \
+  or diag "\nTo use hyphen in name, pass :relaxed-name to meta-ok\n";
+=end code
+
+=head1 Writing tests
+
+As with any Perl project, the tests live under the C<t> directory in the
+project's base directory.
+
+A typical test file looks something like this:
+
+=begin code :solo :preamble<my $num-tests = 0>
+use Test;      # a Standard module included with Rakudo
+use lib 'lib';
+
+plan $num-tests;
+
+# .... tests
+
+done-testing;  # optional with 'plan'
+=end code
+
+We ensure that we're using Perl 6, via the C<use v6.c> pragma, then we load
+the C<Test> module and specify where our libraries are.  We then specify how
+many tests we I<plan> to run (such that the testing framework can tell us if
+more or fewer tests were run than we expected) and when finished with the
+tests, we use I<done-testing> to tell the framework we are done.
+
+=head2 Thread safety
+
+Note that routines in C<Test> module are I<not> thread-safe. This means you
+should not attempt to use the testing routines in multiple threads
+simultaneously, as the L<TAP|https://testanything.org/> output might come out of
+order and confuse the program interpreting it.
+
+There are no current plans to make it thread safe. If threaded-testing is
+crucial to you, you may find some suitable
+L<ecosystem modules|https://modules.perl6.org/search/?q=Test> to use
+instead of C<Test> for your testing needs.
+
+=head1 Running tests
+
+Tests can be run individually by specifying the test filename on the
+command line:
+
+=for code :lang<shell>
+$ perl6 t/test-filename.t
+
+Or via the L<prove|https://perldoc.perl.org/prove.html> command from Perl 5,
+where using C<--exec> to specify the executable that runs the tests:
+
+=for code :lang<shell>
+$ prove --exec perl6 -r t
+
+To abort the test suite upon first failure, set the
+C<PERL6_TEST_DIE_ON_FAIL> environmental variable:
+
+=for code :lang<shell>
+$ PERL6_TEST_DIE_ON_FAIL=1 perl6 t/test-filename.t
+
+The same variable can be used within the test file. Set it before loading
+the C<Test> module:
+
+    BEGIN %*ENV<PERL6_TEST_DIE_ON_FAIL> = 1;
+    use Test;
+    ...
+
+=head1 Test plans
+
+Tests plans use L<C<plan>|/type/Test#plan> for declaring how many plans are
+going to be done or, as might be the case, skipped. If no plan is declared,
+L<C<done-testing>|/type/Test#done-testing> is used to declare the end of the
+tests.
+
+=head1 Testing return values
+
+The C<Test> module exports various functions that check the return value of a
+given expression and produce standardized test output.
+
+In practice, the expression will often be a call to a function or method that
+you want to unit-test. L<C<ok>|/type/Test#ok> and L<C<nok>|/type/Test#nok> will
+match C<True> and C<False>. However, where possible it's better to use one of
+the specialized comparison test functions below, because they can print more
+helpful diagnostics output in case the comparison fails.
+
+=head2 By string comparison
+
+L<C<is>|/type/Test#is> and L<C<nok>|/type/Test#isnt> test for equality using the
+proper operator, depending on the object (or class) it's handled.
+
+=head2 By approximate numeric comparison
+
+L<C<is-approx>|/type/Test#is-approx> compares numbers with a certain precision,
+which can be absolute or relative. It can be useful for numeric values whose
+precision will depend on the internal representation.
+
+=head2 By structural comparison
+
+Structures can be also compared using L<C<is-deeply>|/type/Test#is-deeply>,
+which will check that internal structures of the objects compared is the same.
+
+=head2 By arbitrary comparison
+
+You can use any kind of comparison with L<C<cmp-ok>|/type/Test#cmp-ok>, which
+takes as an argument the function or operator that you want to be used for
+comparing.
+
+=head2 By object type
+
+L<C<isa-ok>|/type/Test#isa-ok> tests whether an object is of a certain type.
+
+
+=head2 By method name
+
+L<C<can-ok>|/type/Test#can-ok> is used on objects to check whether they have
+that particular method.
+
+=head2 By role
+
+=item X<does-ok($variable, $role, $description?)|does-ok>
+
+L<C<does-ok>|/type/Test#does-ok> checks whether the given variable can do a
+certain L<Role|/language/objects#Roles>.
+
+=head2 By regex
+
+L<C<like>|/type/Test#like> and L<C<unlike>|/type/Test#unlike> check using
+regular expressions; in the first case passes if a match exists, in the second
+case when it does not.
+
+=head1 Testing modules
+
+Modules are tentatively loaded with L<C<use-ok>|/type/Test#use-ok>, which fails
+if they fail to load.
+
+=head1 Testing exceptions
+
+L<C<dies-ok>|/type/Test#dies-ok> and L<C<lives-ok>|/type/Test#lives-ok> are
+opposites ways of testing code; the first checks that it throws an exception,
+the second that it does not; L<C<throws-like>|/type/Test#throws-like> checks
+that the code throws the specific exception it gets handed as an argument;
+L<C<fails-like>|/type/Test#fails-like>, similarly, checks if the code returns a
+specific type of L<Failure|/type/Failure>. L<C<eval-dies-ok>|/type/Test#eval-dies-ok> and
+L<C<eval-lives-ok>|/type/Test#eval-lives-ok> work similarly on strings that are
+evaluated prior to testing.
+
+=head1 Grouping tests
+
+The result of a group of subtests is only C<ok> if all subtests are C<ok>; they
+are grouped using L<C<subtest>|/type/Test#subtest>.
+
+
+=head1 Skipping tests
+
+Sometimes tests just aren't ready to be run, for instance a feature might not
+yet be implemented, in which case tests can be marked as
+L<C<todo>|/type/Test#todo>. Or it could be the case that a given feature only
+works on a particular platform - in which case one would
+L<C<skip>|/type/Test#skip> the test on other platforms;
+L<C<skip-rest>|/type/Test#skip-rest> will skip the remaining tests instead of a
+particular number given as argument; L<C<bail-out>|/type/Test#bail-out> will
+simply exit the tests with a message.
+
+=head1 Manual control
+
+If the convenience functionality documented above does not suit your needs, you
+can use the following functions to manually direct the test harness output;
+L<C<pass>|/type/Test#pass> will say a test has passed, and
+L<C<diag>|/type/Test#diag> will print a (possibly) informative message.
+
+=end pod
+
+# vim: expandtab softtabstop=4 shiftwidth=4 ft=perl6
