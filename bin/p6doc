@@ -168,7 +168,10 @@ sub build_index {
     my %words;
 
     # XXX should index more than this - currently only core pod
-    for ($*REPO.repo-chain()>>.Str X~ "{$*SPEC.dir-sep}doc{$*SPEC.dir-sep}").grep: *.IO.d  -> $lib_path is copy {
+	# NOTE: Temporarily use the doc folder relative to the Current
+	#       Working Directory $*CWD instead of using
+	#       $*REPO.repo-chain() to find it, for easier testing.
+    for ($*CWD>>.Str X~ "{$*SPEC.dir-sep}doc{$*SPEC.dir-sep}").grep: *.IO.d  -> $lib_path is copy {
 
         # for p6doc -f only looking under "Type" directory is useful (and faster)
         my @files =  find(:dir($lib_path ~ "Type"),:type('file')).map({.IO});
