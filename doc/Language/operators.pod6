@@ -326,7 +326,7 @@ Hyper operators are defined recursively on nested arrays.
 
 Also, methods can be called in an out of order, concurrent fashion. The
 resulting list will be in order. Note that all hyper operators are candidates
-for parallelism and will cause tears if the methods have side effects. The
+for autothreading and will cause tears if the methods have side effects. The
 optimizer has full reign over hyper operators, which is the reason that they
 cannot be defined by the user.
 
@@ -530,6 +530,11 @@ in list context. Check this:
 This array is itemized, in the sense that every element constitutes an item, as
 shown by the C<$> preceding the last element of the array, the
 L<(list) item contextualizer|/type/Any#index-entry-%24_%28item_contextualizer%29>.
+
+The output will be (almost) the same if we attempt to flatten it using
+L<C<|> a. k. a. I<the flattener>|/routine/|>, which puts it in a list context:
+
+    say .perl for | 3,2,[1,0]; # OUTPUT: «3␤2␤[1, 0]␤»
 
 =head1 Terms
 
@@ -1400,7 +1405,7 @@ of that element over all arguments).
     say <a a b c a> (&) bag(<a a b c c>); # OUTPUT: «Bag(a(2), b, c)␤»
     =end code
 
-C«∩» is equivalent to C«(&)», at codepoint U+2229 (INTERSECTION).
+C«∩» is quivalent to C«(&)», at codepoint U+2229 (INTERSECTION).
 
 =head2 infix C«(.)», infix C«⊍»
 
@@ -1453,7 +1458,7 @@ of the arguments are a L<Bag|/type/Bag>, L<BagHash|/type/BagHash>,
 L<Mix|/type/Mix> or L<MixHash|/type/MixHash>.
 
     =begin code
-    say <a b d> ∪ bag(<a a b c>); # OUTPUT: «Bag(a(2), b, c, d)␤»
+    say <a b d> ∪ bag(<a a b c>; # OUTPUT: «Bag(a(2), b, c, d)␤»
     =end code
 
 If any of the arguments are L<Baggy|/type/Baggy> or L<Mixy|/type/Mixy>>,
@@ -1461,7 +1466,7 @@ the result is a new C<Bag> (or C<Mix>) containing all the elements, each
 weighted by the I<highest> weight that appeared for that element.
 
     =begin code
-    say <a b d> ∪ bag(<a a b c>); # OUTPUT: «Bag(a(2), b, c, d)␤»
+    say <a b d> ∪ bag(<a a b c>; # OUTPUT: «Bag(a(2), b, c, d)␤»
     =end code
 
 C«∪» is equivalent to C«(|)», at codepoint U+222A (UNION).
@@ -1509,7 +1514,7 @@ are a L<Bag|/type/Bag>, L<BagHash|/type/BagHash>, L<Mix|/type/Mix> or L<MixHash|
     =end code
 
 If any of the arguments are L<Baggy|/type/Baggy> or L<Mixy|/type/Mixy>>,
-the result is a new C<Bag> (or C<Mix>) containing all the elements remaining
+the result is a new C<Bag> (or C<Mix>) containing all the elements remaing
 after the first argument with its weight subtracted by the weight of that
 element in each of the other arguments.
 
@@ -2247,7 +2252,7 @@ C«∉» is codepoint U+220C (DOES NOT CONTAIN AS MEMBER).
 
 =head2 infix C«(<)», infix C«⊂»
 
-    multi sub infix:<< (<) >>($a,$b --> Bool:D)
+    multi sub infix:<(<)>($a,$b --> Bool:D)
     multi sub infix:<⊂>($a,$b --> Bool:D)
 
 X<Subset of operator>.
@@ -2282,7 +2287,7 @@ C«⊄» is codepoint U+2284 (NOT A SUBSET OF).
 
 =head2 infix C«(<=)», infix C«⊆»
 
-    multi sub infix:<< (<=) >>($a,$b --> Bool:D)
+    multi sub infix:<(<=)>($a,$b --> Bool:D)
     multi sub infix:<⊆>($a,$b --> Bool:D)
 
 X<Subset of or equal to operator>.
@@ -2318,7 +2323,7 @@ C«⊈» is codepoint U+2288 (NEITHER A SUBSET OF NOR EQUAL TO).
 
 =head2 infix C«(>)», infix C«⊃»
 
-    multi sub infix:<< (>) >>($a,$b --> Bool:D)
+    multi sub infix:<(>)>($a,$b --> Bool:D)
     multi sub infix:<⊃>($a,$b --> Bool:D)
 
 X<Superset of operator>.
@@ -2353,7 +2358,7 @@ C«⊅» is codepoint U+2285 (NOT A SUPERSET OF).
 
 =head2 infix C«(>=)», infix C«⊇»
 
-    multi sub infix:<< (>=) >>($a,$b --> Bool:D)
+    multi sub infix:<(>=)>($a,$b --> Bool:D)
     multi sub infix:<⊇>($a,$b --> Bool:D)
 
 X<Superset of or equal to operator>.
