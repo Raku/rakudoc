@@ -15,69 +15,11 @@ my class X::P6doc is Exception {
 constant DEBUG      = %*ENV<P6DOC_DEBUG>;
 constant INTERACT   = %*ENV<P6DOC_INTERACT>;
 
-sub findbin() returns Str {
-    #IO::Path.new($*PROGRAM-NAME).parent ~ '/';
-    $*PROGRAM.parent ~ '/';
+sub findbin() returns IO::Path {
+    $*PROGRAM.parent;
 }
 
-constant INDEX is export = findbin() ~ 'index.data';
-
-sub search-paths() returns Seq is export {
-    (('.', |$*REPO.repo-chain())>>.Str X~ </doc/>).grep: *.IO.d
-}
-
-sub module-names(Str $modulename) returns Seq {
-    $modulename.split('::').join('/') X~ <.pm .pm6 .pod .pod6>;
-}
-
-sub locate-module(Str $modulename) is export {
-    my @candidates = search-paths() X~ </ Type/ Language/> X~ module-names($modulename).list;
-    DEBUG and warn :@candidates.perl;
-    my $m = @candidates.first: *.IO.f;
-
-    unless $m.defined {
-        # not "core" pod now try for panda or zef installed module
-        $m = locate-curli-module($modulename);
-    }
-
-    unless $m.defined {
-        my $message = join "\n",
-            "Cannot locate $modulename in any of the following paths:",
-            search-paths.map({"  $_"});
-        X::P6doc.new(:$message).throw;
-    }
-
-    return $m;
-}
-
-sub show-docs(Str $path, :$section, :$no-pager, :$package is copy) is export {
-
-    my $pager;
-    $pager = %*ENV<PAGER> // ($*DISTRO.is-win ?? 'more' !! 'less -r') unless $no-pager;
-    if not open($path).lines.grep( /^'=' | '#|' | '#='/ ) {
-        say "No Pod found in $path";
-        return;
-    }
-    my $doc-command-str = $*EXECUTABLE-NAME;
-    if $section.defined {
-        %*ENV<PERL6_POD_HEADING> = $section;
-        my $i = findbin() ~ '../lib';
-        $doc-command-str ~= " -I$i --doc=SectionFilter"
-    } else {
-        $doc-command-str ~= " --doc"
-    }
-    $doc-command-str ~= " $path ";
-    if $package.DEFINITE {
-        my $cs = ";";
-        $cs = "&" if $*DISTRO.is-win;
-        $package ~~ s/"Type::"//;
-        $doc-command-str = "echo \"In {$package}\"$cs" ~ $doc-command-str;
-    }
-    $doc-command-str ~= " | $pager" if $pager;
-    say "launching '$doc-command-str'" if DEBUG;
-    shell $doc-command-str;
-}
-
+constant INDEX is export = findbin().add('index.data');
 
 sub build_index is export {
     my %words;
@@ -111,6 +53,61 @@ sub build_index is export {
     $out.print(%words.perl);
     $out.close;
 
+}
+
+sub search-paths() returns Seq is export {
+    (('.', |$*REPO.repo-chain())>>.Str X~ </doc/>).grep: *.IO.d
+}
+
+sub module-names(Str $modulename) returns Seq {
+    $modulename.split('::').join('/') X~ <.pm .pm6 .pod .pod6>;
+}
+
+sub locate-module(Str $modulename) is export {
+    my @candidates = search-paths() X~ </ Type/ Language/> X~ module-names($modulename).list;
+    DEBUG and warn :@candidates.perl;
+    my $m = @candidates.first: *.IO.f;
+
+    unless $m.defined {
+        # not "core" pod now try for panda or zef installed module
+        $m = locate-curli-module($modulename);
+    }
+
+    unless $m.defined {
+        my $message = join "\n",
+            "Cannot locate $modulename in any of the following paths:",
+            search-paths.map({"  $_"});
+        X::P6doc.new(:$message).throw;
+    }
+
+    return $m;
+}
+
+sub show-docs(Str $path, :$section, :$no-pager, :$package is copy) is export {
+    my $pager;
+    $pager = %*ENV<PAGER> // ($*DISTRO.is-win ?? 'more' !! 'less -r') unless $no-pager;
+    if not open($path).lines.grep( /^'=' | '#|' | '#='/ ) {
+        say "No Pod found in $path";
+        return;
+    }
+    my $doc-command-str = $*EXECUTABLE-NAME;
+    if $section.defined {
+        %*ENV<PERL6_POD_HEADING> = $section;
+        my $i = findbin() ~ '../lib';
+        $doc-command-str ~= " -I$i --doc=SectionFilter"
+    } else {
+        $doc-command-str ~= " --doc"
+    }
+    $doc-command-str ~= " $path ";
+    if $package.DEFINITE {
+        my $cs = ";";
+        $cs = "&" if $*DISTRO.is-win;
+        $package ~~ s/"Type::"//;
+        $doc-command-str = "echo \"In {$package}\"$cs" ~ $doc-command-str;
+    }
+    $doc-command-str ~= " | $pager" if $pager;
+    say "launching '$doc-command-str'" if DEBUG;
+    shell $doc-command-str;
 }
 
 sub disambiguate-f-search($docee, %data) is export {
