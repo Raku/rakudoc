@@ -112,31 +112,6 @@ sub build_index is export {
 
 }
 
-multi sub MAIN('list') {
-    if INDEX.IO ~~ :e {
-        my %data = EVAL slurp INDEX;
-        for %data.keys.sort -> $name {
-            say $name
-        #    my $newdoc = %data{$docee}[0][0] ~ "." ~ %data{$docee}[0][1];
-        #    return MAIN($newdoc, :f);
-        }
-    } else {
-        say "First run   $*PROGRAM-NAME build    to create the index";
-        exit;
-    }
-}
-
-multi sub MAIN('lookup', $key) {
-    if INDEX.IO ~~ :e {
-        my %data = EVAL slurp INDEX;
-        die "not found" unless %data{$key};
-        say %data{$key}.split(" ").[0];
-    } else {
-        say "First run   $*PROGRAM-NAME build    to create the index";
-        exit;
-    }
-}
-
 sub disambiguate-f-search($docee, %data) is export {
     my %found;
 
