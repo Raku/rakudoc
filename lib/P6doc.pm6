@@ -16,7 +16,8 @@ constant DEBUG      = %*ENV<P6DOC_DEBUG>;
 constant INTERACT   = %*ENV<P6DOC_INTERACT>;
 
 sub findbin() returns Str {
-    IO::Path.new($*PROGRAM-NAME).parent ~ '/';
+    #IO::Path.new($*PROGRAM-NAME).parent ~ '/';
+    $*PROGRAM.parent ~ '/';
 }
 
 constant INDEX is export = findbin() ~ 'index.data';
