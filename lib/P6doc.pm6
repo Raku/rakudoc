@@ -4,9 +4,6 @@ use JSON::Fast;
 use File::Find;
 use MONKEY-SEE-NO-EVAL; # until we have a better serialisation
 
-
-
-
 # die with printing a backtrace
 my class X::P6doc is Exception {
     has $.message;
@@ -22,9 +19,7 @@ sub findbin() returns Str {
     IO::Path.new($*PROGRAM-NAME).parent ~ '/';
 }
 
-
 constant INDEX is export = findbin() ~ 'index.data';
-
 
 sub search-paths() returns Seq is export {
     (('.', |$*REPO.repo-chain())>>.Str X~ </doc/>).grep: *.IO.d
