@@ -15,13 +15,11 @@ my class X::P6doc is Exception {
 constant DEBUG      = %*ENV<P6DOC_DEBUG>;
 constant INTERACT   = %*ENV<P6DOC_INTERACT>;
 
-sub findbin() returns IO::Path {
+sub findbin() returns IO::Path is export {
     $*PROGRAM.parent;
 }
 
-constant INDEX is export = findbin().add('index.data');
-
-sub build_index is export {
+sub build_index(IO::Path $index) is export {
     my %words;
 
     # XXX should index more than this - currently only core pod
@@ -49,7 +47,7 @@ sub build_index is export {
         }
     }
 
-    my $out = open(INDEX, :w);
+    my $out = open($index, :w);
     $out.print(%words.perl);
     $out.close;
 

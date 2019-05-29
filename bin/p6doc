@@ -7,6 +7,7 @@ use P6doc;
 use MONKEY-SEE-NO-EVAL;
 
 my $PROGRAM-NAME = "p6doc";
+constant INDEX is export = findbin().add('index.data');
 
 # if usage is changed please also update doc/Programs/02-reading-docs.pod6
 sub USAGE() {
@@ -86,7 +87,7 @@ multi sub MAIN($docee, Bool :$f!, Bool :$n) {
         my %hits;
         if INDEX.IO !~~ :e {
             say "building index on first run. Please wait...";
-            build_index();
+            build_index(INDEX);
 
         }
 
@@ -114,5 +115,5 @@ multi sub MAIN('path-to-index') {
 }
 
 multi sub MAIN('build') {
-    build_index();
+    build_index(INDEX);
 }
