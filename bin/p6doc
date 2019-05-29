@@ -7,7 +7,7 @@ use P6doc;
 use MONKEY-SEE-NO-EVAL;
 
 my $PROGRAM-NAME = "p6doc";
-constant INDEX is export = findbin().add('index.data');
+constant INDEX = findbin().add('index.data');
 
 # if usage is changed please also update doc/Programs/02-reading-docs.pod6
 sub USAGE() {

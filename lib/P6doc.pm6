@@ -50,7 +50,6 @@ sub build_index(IO::Path $index) is export {
     my $out = open($index, :w);
     $out.print(%words.perl);
     $out.close;
-
 }
 
 sub search-paths() returns Seq is export {
