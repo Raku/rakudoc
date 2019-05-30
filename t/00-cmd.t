@@ -26,21 +26,21 @@ subtest "Run the p6doc command", {
 
 	# No arguments
 	$p = run($*EXECUTABLE, TP6DOC, :out, :err);
-	is $p.exitcode, 0;
+	is $p.exitcode, 0, "p6doc";
 
 	# p6doc list
 	$p = run($*EXECUTABLE, TP6DOC, "list", :out, :err);
-	is $p.exitcode, 0;
+	is $p.exitcode, 0, "p6doc list";
 
 	# p6doc path-to-index
 	$p = run($*EXECUTABLE, TP6DOC, "path-to-index", :out, :err);
-	is $p.exitcode, 0;
+	is $p.exitcode, 0, "p6doc path-to-index";
 
 	# lookup Str documentation
 	$p = run($*EXECUTABLE, TP6DOC, "Str", :out, :err);
-	is $p.exitcode, 0;
+	is $p.exitcode, 0, "p6doc Str";
 
 	# lookup Str.split
 	$p = run($*EXECUTABLE, TP6DOC, "Str.split", :out, :err);
-	is $p.exitcode, 0;
+	is $p.exitcode, 0, "p6doc Str.split";
 }
