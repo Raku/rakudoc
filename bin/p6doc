@@ -109,7 +109,6 @@ multi sub MAIN(Str $file where $file.IO ~~ :e, Bool :$n) {
 }
 
 # index related
-
 multi sub MAIN('path-to-index') {
     say INDEX if INDEX.IO.e;
 }

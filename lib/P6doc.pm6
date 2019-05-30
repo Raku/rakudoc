@@ -26,10 +26,12 @@ sub build_index(IO::Path $index) is export {
 	# NOTE: Temporarily use the doc folder relative to the Current
 	#       Working Directory $*CWD instead of using
 	#       $*REPO.repo-chain() to find it, for easier testing.
-    for ($*CWD>>.Str X~ "{$*SPEC.dir-sep}doc{$*SPEC.dir-sep}").grep: *.IO.d  -> $lib_path is copy {
+	my @locations = ($*CWD>>.add: 'doc').grep: *.IO.d;
+	#my @locations = ($*REPO.repo-chain()>>.Str X~ "{$*SPEC.dir-sep}doc{$*SPEC.dir-sep}").grep: *.IO.d;
 
+    for @locations -> $lib_path is copy {
         # for p6doc -f only looking under "Type" directory is useful (and faster)
-        my @files =  find(:dir($lib_path ~ "Type"),:type('file')).map({.IO});
+        my @files = find(:dir($lib_path.IO.add("Type")),:type('file'));
 
         for @files -> $f {
             my $file = $f.path;
