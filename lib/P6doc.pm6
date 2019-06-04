@@ -82,6 +82,31 @@ sub locate-module(Str $modulename) is export {
     return $m;
 }
 
+sub is-pod(IO::Path $p) returns Bool {
+	if not open($p).lines.grep( /^'=' | '#|' | '#='/ ) {
+		return False
+	} else {
+		return True
+	}
+}
+
+# Also see
+# https://github.com/perl6/doc/blob/master/lib/Pod/To/SectionFilter.pm6
+sub get-docs(IO::Path $path, :$section, :$package is copy) is export {
+	if (is-pod($path)) eq False {
+		say "No Pod found in $path";
+		return
+	}
+
+	if $section.defined {
+		%*ENV<PERL6_POD_HEADING> = $section;
+		my $i = findbin().add('../lib');
+		run($*EXECUTABLE, "-I$i", "--doc=SectionFilter", $path);
+	} else {
+		run($*EXECUTABLE, "--doc", $path);
+	}
+}
+
 sub show-docs(Str $path, :$section, :$no-pager, :$package is copy) is export {
     my $pager;
     $pager = %*ENV<PAGER> // ($*DISTRO.is-win ?? 'more' !! 'less -r') unless $no-pager;

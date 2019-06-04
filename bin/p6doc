@@ -66,7 +66,42 @@ multi sub MAIN('lookup', $key) {
 
 multi sub MAIN($docee, Bool :$n) {
     return MAIN($docee, :f, :$n) if defined $docee.index('.');
-    show-docs(locate-module($docee), :no-pager($n), :package($docee));
+
+	# Old
+    #show-docs(locate-module($docee), :no-pager($n), :package($docee));
+	# New
+	get-docs(locate-module($docee).IO, :package($docee));
+}
+
+multi sub MAIN($docee, Bool :$f!, Bool :$n) {
+	my ($package, $method) = $docee.split('.');
+	if ! $method {
+		my %hits;
+		if INDEX.IO !~~ :e {
+			say "building index on first run. Please wait...";
+			build_index(INDEX);
+
+		}
+
+		my %data = EVALFILE INDEX;
+
+		my $final-docee = disambiguate-f-search($docee, %data);
+		($package, $method) = $final-docee.split('.');
+
+		my $m = locate-module($package);
+
+		# Old
+		#show-docs($m, :section($method), :no-pager($n), :$package);
+		# New
+		get-docs($m.IO, :section($method), :$package);
+	} else {
+		my $m = locate-module($package);
+
+		# Old
+		#show-docs($m, :section($method), :no-pager($n), :$package);
+		# New
+		get-docs($m.IO, :section($method), :$package);
+	}
 }
 
 multi sub MAIN(Bool :$l!) {
@@ -81,38 +116,18 @@ multi sub MAIN(Bool :$l!) {
     .say for @modules.unique.sort;
 }
 
-multi sub MAIN($docee, Bool :$f!, Bool :$n) {
-    my ($package, $method) = $docee.split('.');
-    if ! $method {
-        my %hits;
-        if INDEX.IO !~~ :e {
-            say "building index on first run. Please wait...";
-            build_index(INDEX);
-
-        }
-
-        my %data = EVALFILE INDEX;
-
-        my $final-docee = disambiguate-f-search($docee, %data);
-        ($package, $method) = $final-docee.split('.');
-
-        my $m = locate-module($package);
-        show-docs($m, :section($method), :no-pager($n), :$package);
-    } else {
-        my $m = locate-module($package);
-        show-docs($m, :section($method), :no-pager($n), :$package);
-    }
-}
-
 multi sub MAIN(Str $file where $file.IO ~~ :e, Bool :$n) {
-    show-docs($file, :no-pager($n));
+	# Old
+	#show-docs($file, :no-pager($n));
+	# New
+	get-docs($file.IO);
 }
 
 # index related
 multi sub MAIN('path-to-index') {
-    say INDEX if INDEX.IO.e;
+	say INDEX if INDEX.IO.e;
 }
 
 multi sub MAIN('build') {
-    build_index(INDEX);
+	build_index(INDEX);
 }
