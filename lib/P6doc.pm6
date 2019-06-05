@@ -106,31 +106,8 @@ sub get-docs(IO::Path $path, :$section, :$package is copy) is export {
 	}
 }
 
-sub show-docs(Str $path, :$section, :$no-pager, :$package is copy) is export {
-    my $pager;
-    $pager = %*ENV<PAGER> // ($*DISTRO.is-win ?? 'more' !! 'less -r') unless $no-pager;
-    if not open($path).lines.grep( /^'=' | '#|' | '#='/ ) {
-        say "No Pod found in $path";
-        return;
-    }
-    my $doc-command-str = $*EXECUTABLE-NAME;
-    if $section.defined {
-        %*ENV<PERL6_POD_HEADING> = $section;
-        my $i = findbin() ~ '../lib';
-        $doc-command-str ~= " -I$i --doc=SectionFilter"
-    } else {
-        $doc-command-str ~= " --doc"
-    }
-    $doc-command-str ~= " $path ";
-    if $package.DEFINITE {
-        my $cs = ";";
-        $cs = "&" if $*DISTRO.is-win;
-        $package ~~ s/"Type::"//;
-        $doc-command-str = "echo \"In {$package}\"$cs" ~ $doc-command-str;
-    }
-    $doc-command-str ~= " | $pager" if $pager;
-    say "launching '$doc-command-str'" if DEBUG;
-    shell $doc-command-str;
+sub show-docs(Proc $pr, :$no-pager) is export {
+	...
 }
 
 sub disambiguate-f-search($docee, %data) is export {

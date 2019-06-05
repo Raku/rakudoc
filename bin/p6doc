@@ -67,9 +67,6 @@ multi sub MAIN('lookup', $key) {
 multi sub MAIN($docee, Bool :$n) {
     return MAIN($docee, :f, :$n) if defined $docee.index('.');
 
-	# Old
-    #show-docs(locate-module($docee), :no-pager($n), :package($docee));
-	# New
 	get-docs(locate-module($docee).IO, :package($docee));
 }
 
@@ -90,16 +87,10 @@ multi sub MAIN($docee, Bool :$f!, Bool :$n) {
 
 		my $m = locate-module($package);
 
-		# Old
-		#show-docs($m, :section($method), :no-pager($n), :$package);
-		# New
 		get-docs($m.IO, :section($method), :$package);
 	} else {
 		my $m = locate-module($package);
 
-		# Old
-		#show-docs($m, :section($method), :no-pager($n), :$package);
-		# New
 		get-docs($m.IO, :section($method), :$package);
 	}
 }
@@ -117,9 +108,6 @@ multi sub MAIN(Bool :$l!) {
 }
 
 multi sub MAIN(Str $file where $file.IO ~~ :e, Bool :$n) {
-	# Old
-	#show-docs($file, :no-pager($n));
-	# New
 	get-docs($file.IO);
 }
 
