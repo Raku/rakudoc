@@ -67,7 +67,7 @@ multi sub MAIN('lookup', $key) {
 multi sub MAIN($docee, Bool :$n) {
     return MAIN($docee, :f, :$n) if defined $docee.index('.');
 
-	get-docs(locate-module($docee).IO, :package($docee));
+	put get-docs(locate-module($docee).IO, :package($docee));
 }
 
 multi sub MAIN($docee, Bool :$f!, Bool :$n) {
@@ -87,11 +87,11 @@ multi sub MAIN($docee, Bool :$f!, Bool :$n) {
 
 		my $m = locate-module($package);
 
-		get-docs($m.IO, :section($method), :$package);
+		put get-docs($m.IO, :section($method), :$package);
 	} else {
 		my $m = locate-module($package);
 
-		get-docs($m.IO, :section($method), :$package);
+		put get-docs($m.IO, :section($method), :$package);
 	}
 }
 
@@ -108,7 +108,7 @@ multi sub MAIN(Bool :$l!) {
 }
 
 multi sub MAIN(Str $file where $file.IO ~~ :e, Bool :$n) {
-	get-docs($file.IO);
+	put get-docs($file.IO);
 }
 
 # index related

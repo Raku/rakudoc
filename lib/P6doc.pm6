@@ -91,22 +91,27 @@ sub is-pod(IO::Path $p) returns Bool {
 
 # Also see
 # https://github.com/perl6/doc/blob/master/lib/Pod/To/SectionFilter.pm6
-sub get-docs(IO::Path $path, :$section, :$package is copy) is export {
+sub get-docs(IO::Path $path, :$section, :$package is copy) returns Str is export {
 	if (is-pod($path)) eq False {
 		say "No Pod found in $path";
 		return
 	}
 
+	my $proc = Proc.new: :err, :out, :merge;
+
 	if $section.defined {
 		%*ENV<PERL6_POD_HEADING> = $section;
 		my $i = findbin().add('../lib');
-		run($*EXECUTABLE, "-I$i", "--doc=SectionFilter", $path);
+
+		$proc.spawn($*EXECUTABLE, "-I$i", "--doc=SectionFilter", $path);
+		return $proc.out.slurp: :close;
 	} else {
-		run($*EXECUTABLE, "--doc", $path);
+		$proc.spawn($*EXECUTABLE, "--doc", $path);
+		return $proc.out.slurp: :close;
 	}
 }
 
-sub show-docs(Proc $pr, :$no-pager) is export {
+sub show-docs(Str $docstr, :$no-pager) is export {
 	...
 }
 
