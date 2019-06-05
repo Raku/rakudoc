@@ -40,6 +40,9 @@ subtest "Run the p6doc command", {
 	$p = run($*EXECUTABLE, TP6DOC, "Str", :out, :err);
 	is $p.exitcode, 0, "p6doc Str";
 
+	$p = run($*EXECUTABLE, TP6DOC, "IO", :out, :err);
+	is $p.exitcode, 0, "p6doc IO";
+
 	# lookup Str.split
 	$p = run($*EXECUTABLE, TP6DOC, "Str.split", :out, :err);
 	is $p.exitcode, 0, "p6doc Str.split";
