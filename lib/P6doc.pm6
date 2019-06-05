@@ -2,7 +2,6 @@ unit module P6doc;
 
 use JSON::Fast;
 use File::Find;
-use MONKEY-SEE-NO-EVAL; # until we have a better serialisation
 
 # die with printing a backtrace
 my class X::P6doc is Exception {
