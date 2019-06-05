@@ -3,6 +3,9 @@ unit module P6doc;
 use JSON::Fast;
 use File::Find;
 
+constant DEBUG      = %*ENV<P6DOC_DEBUG>;
+constant INTERACT   = %*ENV<P6DOC_INTERACT>;
+
 # die with printing a backtrace
 my class X::P6doc is Exception {
     has $.message;
@@ -10,9 +13,6 @@ my class X::P6doc is Exception {
         self.message;
     }
 }
-
-constant DEBUG      = %*ENV<P6DOC_DEBUG>;
-constant INTERACT   = %*ENV<P6DOC_INTERACT>;
 
 sub findbin() returns IO::Path is export {
     $*PROGRAM.parent;
