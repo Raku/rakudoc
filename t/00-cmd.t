@@ -4,14 +4,14 @@ use Test;
 use lib 'lib';
 use P6doc;
 
-plan 2;
+plan 3;
 
 # Hardcoded paths for testing only
 constant TINDEX = $*PROGRAM.parent(2).add("bin{$*SPEC.dir-sep}index.data");
 constant TP6DOC = $*PROGRAM.parent(2).add("bin{$*SPEC.dir-sep}p6doc");
 
 subtest "Build index file", {
-	my $p;
+	my Proc $p;
 
 	$p = run($*EXECUTABLE, "bin/p6doc", "build");
 	is $p.exitcode, 0;
@@ -22,7 +22,7 @@ subtest "Build index file", {
 # Note: Prepending $*EXECUTABLE ensures that this
 #       works on Windows as well
 subtest "Run the p6doc command", {
-	my $p;
+	my Proc $p;
 
 	# No arguments
 	$p = run($*EXECUTABLE, TP6DOC, :out, :err);
@@ -40,10 +40,22 @@ subtest "Run the p6doc command", {
 	$p = run($*EXECUTABLE, TP6DOC, "Str", :out, :err);
 	is $p.exitcode, 0, "p6doc Str";
 
-	$p = run($*EXECUTABLE, TP6DOC, "IO", :out, :err);
-	is $p.exitcode, 0, "p6doc IO";
-
 	# lookup Str.split
 	$p = run($*EXECUTABLE, TP6DOC, "Str.split", :out, :err);
 	is $p.exitcode, 0, "p6doc Str.split";
+
+	# lookup IO
+	$p = run($*EXECUTABLE, TP6DOC, "IO", :out, :err);
+	is $p.exitcode, 0, "p6doc IO";
+}
+
+subtest "p6doc -f", {
+	my Proc $p;
+	my Str $output;
+
+	$p = run($*EXECUTABLE, TP6DOC, "-f", "exit", :out, :err, :merge);
+	$output = $p.out.slurp: :close;
+
+	nok $output.contains('No documentation found'), "p6doc -f exit";
+	nok $output.contains('No such type'), "p6doc -f exit";
 }

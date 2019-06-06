@@ -4,7 +4,7 @@ use Test;
 use lib 'lib';
 use P6doc;
 
-plan 4;
+plan 5;
 
 subtest "get-doc Str", {
 	my $pod-path = "doc/Type/Str.pod6".IO;
@@ -49,4 +49,18 @@ subtest "get-doc IO.prompt", {
 	ok $gd.contains('multi sub prompt()');
 	ok $gd.contains('multi sub prompt($msg)');
 	ok $gd.contains('STDIN');
+}
+
+# See https://github.com/perl6/doc/issues/2532
+# for a related issue
+subtest "get-doc exit routine", {
+	my $pod-path = "doc/Type/independent-routines.pod6".IO;
+	my $gd = get-docs($pod-path, :section('exit'));
+
+	nok $gd.contains('No documentation found');
+	nok $gd.contains('No such type');
+
+	ok $gd.contains('multi sub exit');
+	ok $gd.contains('LEAVE');
+	ok $gd.contains('&*EXIT');
 }
