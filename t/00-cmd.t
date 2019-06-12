@@ -55,7 +55,11 @@ subtest "p6doc -f", {
 
 	$p = run($*EXECUTABLE, TP6DOC, "-f", "exit", :out, :err, :merge);
 	$output = $p.out.slurp: :close;
-
 	nok $output.contains('No documentation found'), "p6doc -f exit";
 	nok $output.contains('No such type'), "p6doc -f exit";
+
+	$p = run($*EXECUTABLE, TP6DOC, "-f", "done", :out, :err, :merge);
+	$output = $p.out.slurp: :close;
+	nok $output.contains('No documentation found'), "p6doc -f done";
+	nok $output.contains('No such type'), "p6doc -f done";
 }
