@@ -14,9 +14,9 @@ subtest "Build index file", {
 	my Proc $p;
 
 	$p = run($*EXECUTABLE, "bin/p6doc", "build");
-	is $p.exitcode, 0;
-	is TINDEX.e, True;
-	is TINDEX.z, False;
+	is $p.exitcode, 0, "p6doc build";
+	is TINDEX.e, True, "index file exists";
+	is TINDEX.z, False, "index file not empty";
 }
 
 # Note: Prepending $*EXECUTABLE ensures that this
