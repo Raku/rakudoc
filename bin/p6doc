@@ -71,18 +71,26 @@ multi sub MAIN($docee, Bool :$n) {
 }
 
 multi sub MAIN($docee, Bool :$f!, Bool :$n) {
+
 	my ($package, $method) = $docee.split('.');
 	if ! $method {
+
 		my %hits;
 		if INDEX.IO !~~ :e {
 			say "building index on first run. Please wait...";
 			build_index(INDEX);
-
 		}
 
 		my %data = EVALFILE INDEX;
 
 		my $final-docee = disambiguate-f-search($docee, %data);
+
+		# NOTE: This is a temporary fix, since disambiguate-f-search
+		#       does not properly handle independent routines right now.
+		if $final-docee eq '' {
+			$final-docee = ('independent-routines', $docee).join('.');
+		}
+
 		($package, $method) = $final-docee.split('.');
 
 		my $m = locate-module($package);
