@@ -71,4 +71,9 @@ subtest "p6doc -f", {
 	$output = $p.out.slurp: :close;
 	nok $output.contains('No documentation found'), "p6doc -f done";
 	nok $output.contains('No such type'), "p6doc -f done";
+
+	$p = run($*EXECUTABLE, TP6DOC, "-f", "prompt", :out, :err, :merge);
+	$output = $p.out.slurp: :close;
+	nok $output.contains('No documentation found'), "p6doc -f prompt";
+	nok $output.contains('No such type'), "p6doc -f prompt";
 }
