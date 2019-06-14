@@ -13,10 +13,19 @@ constant TP6DOC = $*PROGRAM.parent(2).add("bin{$*SPEC.dir-sep}p6doc");
 subtest "Build index file", {
 	my Proc $p;
 
+	if TINDEX.IO.e {
+		say "Cleaning index file...";
+		unlink TINDEX;
+	}
+
 	$p = run($*EXECUTABLE, "bin/p6doc", "build");
 	is $p.exitcode, 0, "p6doc build";
 	is TINDEX.e, True, "index file exists";
 	is TINDEX.z, False, "index file not empty";
+
+	my $raw-index = TINDEX.slurp;
+	ok $raw-index.contains('split');
+	ok $raw-index.contains('prompt');
 }
 
 # Note: Prepending $*EXECUTABLE ensures that this
