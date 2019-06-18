@@ -12,18 +12,18 @@ plan 4;
 constant TINDEX = $*PROGRAM.parent(2).add("bin{$*SPEC.dir-sep}index.data");
 constant DATA = EVALFILE TINDEX;
 
-subtest "search-paths", {
+subtest 'search-paths', {
 	ok search-paths().join(' ').contains('/doc');
 }
 
-subtest "module-names", {
+subtest 'module-names', {
 	my $expected;
 
 	$expected = ('Text/CSV.pm', 'Text/CSV.pm6', 'Text/CSV.pod', 'Text/CSV.pod6');
-	is module-names("Text::CSV"), $expected;
+	is module-names('Text::CSV'), $expected;
 }
 
-subtest "locate-module", {
+subtest 'locate-module', {
 	my Str $lm;
 
 	$lm = locate-module('Str');
@@ -39,7 +39,7 @@ subtest "locate-module", {
 	ok $lm.contains('/');
 }
 
-subtest "disambiguate-f-search", {
+subtest 'disambiguate-f-search', {
 	isnt disambiguate-f-search('exit', DATA), '';
 	isnt disambiguate-f-search('done', DATA), '';
 }
