@@ -18,6 +18,11 @@ sub findbin() returns IO::Path is export {
     $*PROGRAM.parent;
 }
 
+sub search-paths() returns Seq is export {
+    #return (('.', |$*REPO.repo-chain())>>.Str X~ </doc/>).grep: *.IO.d;
+    return (('.', |$*CWD)>>.Str X~ </doc/>).grep: *.IO.d
+}
+
 sub build_index(IO::Path $index) is export {
     my %words;
 
@@ -53,11 +58,7 @@ sub build_index(IO::Path $index) is export {
     $out.close;
 }
 
-sub search-paths() returns Seq is export {
-    (('.', |$*REPO.repo-chain())>>.Str X~ </doc/>).grep: *.IO.d
-}
-
-sub module-names(Str $modulename) returns Seq {
+sub module-names(Str $modulename) returns Seq is export {
     $modulename.split('::').join('/') X~ <.pm .pm6 .pod .pod6>;
 }
 
