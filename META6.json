@@ -1,0 +1,18 @@
+{
+    "perl" : "6.d",
+    "name" : "P6doc",
+    "auth" : "",
+    "authors" : [ ],
+    "version" : "0.0.1",
+    "description" : "",
+    "license" : "Artistic-2.0",
+    "provides" : {
+        "P6doc" : "lib/P6doc.pm6"
+    },
+    "depends" : ["JSON::Fast", "File::Find"],
+    "build-depends" : [ ],
+    "test-depends" : [ ],
+    "resources" : [ ],
+    "tags": [ ],
+    "source-url" : "https://github.com/noisegul/perl6-p6doc"
+}
