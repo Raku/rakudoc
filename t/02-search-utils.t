@@ -19,6 +19,9 @@ subtest 'search-paths', {
 subtest 'module-names', {
 	my $expected;
 
+	$expected = ('Foo/Bar.pm', 'Foo/Bar.pm6', 'Foo/Bar.pod', 'Foo/Bar.pod6');
+	is module-names('Foo::Bar'), $expected;
+
 	$expected = ('Text/CSV.pm', 'Text/CSV.pm6', 'Text/CSV.pod', 'Text/CSV.pod6');
 	is module-names('Text::CSV'), $expected;
 }
