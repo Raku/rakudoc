@@ -41,7 +41,7 @@ sub USAGE() {
 }
 
 multi sub MAIN('list') {
-    if INDEX.IO ~~ :e {
+    if INDEX.IO.e {
         my %data = EVAL slurp INDEX;
         for %data.keys.sort -> $name {
             say $name
@@ -55,7 +55,7 @@ multi sub MAIN('list') {
 }
 
 multi sub MAIN('lookup', $key) {
-    if INDEX.IO ~~ :e {
+    if INDEX.IO.e {
         my %data = EVAL slurp INDEX;
         die "not found" unless %data{$key};
         say %data{$key}.split(" ").[0];
@@ -76,8 +76,7 @@ multi sub MAIN($docee, Bool :$f!, Bool :$n) {
 	my ($package, $method) = $docee.split('.');
 	if ! $method {
 
-		my %hits;
-		if INDEX.IO !~~ :e {
+		if not INDEX.IO.e {
 			say "building index on first run. Please wait...";
 			build_index(INDEX);
 		}
@@ -116,7 +115,7 @@ multi sub MAIN(Bool :$l!) {
     .say for @modules.unique.sort;
 }
 
-multi sub MAIN(Str $file where $file.IO ~~ :e, Bool :$n) {
+multi sub MAIN(Str $file where $file.IO.e, Bool :$n) {
 	put get-docs($file.IO);
 }
 
