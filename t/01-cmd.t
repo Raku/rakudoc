@@ -79,3 +79,8 @@ subtest 'p6doc -f', {
 	nok $output.contains('No such type'), 'p6doc -f prompt';
 	isnt $output, '';
 }
+
+# Show test duration
+my $elapsed = "Test finished after {now - INIT now} seconds";
+say '-'x$elapsed.chars;
+say $elapsed;
