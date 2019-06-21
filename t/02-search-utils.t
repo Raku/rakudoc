@@ -10,7 +10,7 @@ use MONKEY-SEE-NO-EVAL;
 plan 4;
 
 constant TINDEX = $*PROGRAM.parent(2).add("bin{$*SPEC.dir-sep}index.data");
-constant DATA = EVALFILE TINDEX;
+constant INDEXDATA = EVALFILE TINDEX;
 
 subtest 'search-paths', {
 	ok search-paths().join(' ').contains('/doc');
@@ -40,6 +40,6 @@ subtest 'locate-module', {
 }
 
 subtest 'disambiguate-f-search', {
-	isnt disambiguate-f-search('exit', DATA), '';
-	isnt disambiguate-f-search('done', DATA), '';
+	isnt disambiguate-f-search('exit', INDEXDATA), '';
+	isnt disambiguate-f-search('done', INDEXDATA), '';
 }
