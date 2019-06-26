@@ -6,6 +6,9 @@ package P6doc::CLI {
 	my $PROGRAM-NAME = "p6doc";
 	constant INDEX = findbin().add('index.data');
 
+	proto MAIN(|) is export {
+	}
+
 	# if usage is changed please also update doc/Programs/02-reading-docs.pod6
 	sub USAGE() {
 		say "You want to maintain the index?";
