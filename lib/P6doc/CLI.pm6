@@ -7,6 +7,7 @@ package P6doc::CLI {
 	constant INDEX = findbin().add('index.data');
 
 	proto MAIN(|) is export {
+		{*}
 	}
 
 	# if usage is changed please also update doc/Programs/02-reading-docs.pod6
@@ -37,6 +38,10 @@ package P6doc::CLI {
 
 		say "\nYou can bypass the pager and print straight to stdout:";
 		say "          $PROGRAM-NAME -n Str";
+	}
+
+	multi MAIN(Bool :h(:$help)?) {
+		exit;
 	}
 
 	multi sub MAIN('list') {
