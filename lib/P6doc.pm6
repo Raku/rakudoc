@@ -18,6 +18,8 @@ sub findbin() returns IO::Path is export {
     $*PROGRAM.parent;
 }
 
+constant INDEX is export = findbin().add('index.data');
+
 sub search-paths() returns Seq is export {
     #return (('.', |$*REPO.repo-chain())>>.Str X~ </doc/>).grep: *.IO.d;
     return (('.', |$*CWD)>>.Str X~ </doc/>).grep: *.IO.d

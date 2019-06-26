@@ -4,7 +4,6 @@ package P6doc::CLI {
 	use MONKEY-SEE-NO-EVAL;
 
 	my $PROGRAM-NAME = "p6doc";
-	constant INDEX = findbin().add('index.data');
 
 	# if usage is changed please also update doc/Programs/02-reading-docs.pod6
 	sub USAGE() {
