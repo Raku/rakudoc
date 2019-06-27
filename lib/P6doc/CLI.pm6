@@ -1,4 +1,5 @@
 use P6doc;
+use P6doc::Index;
 
 package P6doc::CLI {
 	use MONKEY-SEE-NO-EVAL;
