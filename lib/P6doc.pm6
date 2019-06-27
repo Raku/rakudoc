@@ -1,3 +1,5 @@
+use P6doc::Utils;
+
 unit module P6doc;
 
 use JSON::Fast;
@@ -13,12 +15,6 @@ my class X::P6doc is Exception {
         self.message;
     }
 }
-
-sub findbin() returns IO::Path is export {
-    $*PROGRAM.parent;
-}
-
-constant INDEX is export = findbin().add('index.data');
 
 sub search-paths() returns Seq is export {
     #return (('.', |$*REPO.repo-chain())>>.Str X~ </doc/>).grep: *.IO.d;
