@@ -3,6 +3,7 @@ use Test;
 
 use lib 'lib';
 use P6doc;
+use P6doc::Index;
 
 # Until indexing changes
 use MONKEY-SEE-NO-EVAL;

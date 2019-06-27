@@ -4,6 +4,7 @@ use Test;
 
 use lib 'lib';
 use P6doc;
+use P6doc::Index;
 
 plan 1;
 
