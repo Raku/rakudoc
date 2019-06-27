@@ -9,8 +9,7 @@ use MONKEY-SEE-NO-EVAL;
 
 plan 4;
 
-constant TINDEX = $*PROGRAM.parent(2).add("bin{$*SPEC.dir-sep}index.data");
-constant INDEXDATA = EVALFILE TINDEX;
+constant INDEXDATA = EVALFILE INDEX;
 
 subtest 'search-paths', {
 	ok search-paths().join(' ').contains('/doc');

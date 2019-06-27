@@ -6,8 +6,6 @@ use P6doc;
 
 plan 3;
 
-# Hardcoded paths for testing only
-constant TINDEX = $*PROGRAM.parent(2).add("bin{$*SPEC.dir-sep}index.data");
 constant TP6DOC = $*PROGRAM.parent(2).add("bin{$*SPEC.dir-sep}p6doc");
 
 # Note: Prepending $*EXECUTABLE ensures that this
@@ -44,16 +42,16 @@ subtest 'p6doc', {
 subtest 'p6doc build', {
 	my Proc $p;
 
-	if TINDEX.IO.e {
-		ok unlink(TINDEX), 'Cleaning index file...';
+	if INDEX.IO.e {
+		ok unlink(INDEX), 'Cleaning index file...';
 	}
 
 	$p = run($*EXECUTABLE, 'bin/p6doc', 'build');
 	is $p.exitcode, 0, 'p6doc build';
-	is TINDEX.e, True, 'index file exists';
-	is TINDEX.z, False, 'index file not empty';
+	is INDEX.e, True, 'index file exists';
+	is INDEX.z, False, 'index file not empty';
 
-	my $raw-index = TINDEX.slurp;
+	my $raw-index = INDEX.slurp;
 	ok $raw-index.contains('split');
 	ok $raw-index.contains('prompt');
 }
