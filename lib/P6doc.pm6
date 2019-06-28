@@ -134,8 +134,7 @@ sub disambiguate-f-search($docee, %data) is export {
 	my $final-docee;
 	my $total-found = %found.values.map( *.elems ).sum;
 	if ! $total-found {
-		say "No documentation found for a routine named '$docee'";
-		return '';
+		fail "No documentation found for a routine named '$docee'";
 	} elsif $total-found == 1 {
 		$final-docee = %found.values[0];
 	} else {
