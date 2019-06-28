@@ -7,6 +7,7 @@ package P6doc::CLI {
 	my $PROGRAM-NAME = "p6doc";
 
 	# if usage is changed please also update doc/Programs/02-reading-docs.pod6
+	#`[
 	sub USAGE() {
 		say "You want to maintain the index?";
 		say "To build an index for '$PROGRAM-NAME -f'";
@@ -34,6 +35,28 @@ package P6doc::CLI {
 
 		say "\nYou can bypass the pager and print straight to stdout:";
 		say "          $PROGRAM-NAME -n Str";
+	}
+	]
+
+	sub USAGE() {
+		say q:to/END/;
+			p6doc is a tool for reading perl6 documentation.
+
+			Usage:
+
+				p6doc <command> [argument]
+
+			Commands:
+
+				build           build an index for p6doc -f
+				list            list the index keys
+				path-to-index   show where the index file lives
+
+			Examples:
+
+				p6doc Str
+				p6doc Str.split
+			END
 	}
 
 	proto MAIN(|) is export {
