@@ -1,4 +1,4 @@
-# perl6-p6doc
+# perl6-p6doc [![Build Status](https://travis-ci.org/noisegul/perl6-p6doc.svg?branch=master)](https://travis-ci.org/noisegul/perl6-p6doc)
 
 The `p6doc` command line tool, improved!
 
