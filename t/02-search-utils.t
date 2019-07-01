@@ -42,6 +42,7 @@ subtest 'locate-module', {
 	ok $lm.contains('/');
 }
 
+todo 'sub needs to be rewritten';
 subtest 'disambiguate-f-search', {
 	isnt disambiguate-f-search('exit', INDEXDATA), '';
 	isnt disambiguate-f-search('done', INDEXDATA), '';
