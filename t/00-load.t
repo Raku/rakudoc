@@ -3,7 +3,7 @@ use v6.d;
 use Test;
 use lib 'lib';
 
-plan 1;
+plan 2;
 
 subtest 'Core', {
 	use-ok('P6doc');
