@@ -1,7 +1,6 @@
 use v6.d;
 use Test;
 
-use lib 'lib';
 use P6doc;
 
 plan 6;

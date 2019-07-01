@@ -1,16 +1,23 @@
 use v6.d;
 use Test;
 
-use lib 'lib';
 use P6doc;
 use P6doc::Index;
 
 # Until indexing changes
 use MONKEY-SEE-NO-EVAL;
 
-plan 4;
+plan 5;
 
-constant INDEXDATA = EVALFILE INDEX;
+subtest 'check for index file', {
+	if not INDEX.IO.e {
+		ok build_index(INDEX), 'building index...';
+	} else {
+		skip 'index file already exists';
+	}
+}
+
+my %index-data = EVALFILE INDEX;
 
 subtest 'search-paths', {
 	ok search-paths().join(' ').contains('/doc');
@@ -44,6 +51,6 @@ subtest 'locate-module', {
 
 subtest 'disambiguate-f-search', {
 	skip 'sub needs to be rewritten', 2;
-	#isnt disambiguate-f-search('exit', INDEXDATA), '';
-	#isnt disambiguate-f-search('done', INDEXDATA), '';
+	#isnt disambiguate-f-search('exit', %index-data), '';
+	#isnt disambiguate-f-search('done', %index-data), '';
 }
