@@ -52,8 +52,6 @@ sub is-pod(IO::Path $p) returns Bool {
 	}
 }
 
-# Also see
-# https://github.com/perl6/doc/blob/master/lib/Pod/To/SectionFilter.pm6
 sub get-docs(IO::Path $path, :$section, :$package is copy) returns Str is export {
 	if (is-pod($path)) eq False {
 		say "No Pod found in $path";
