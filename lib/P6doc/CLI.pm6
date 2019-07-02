@@ -6,38 +6,6 @@ package P6doc::CLI {
 
 	my $PROGRAM-NAME = "p6doc";
 
-	# if usage is changed please also update doc/Programs/02-reading-docs.pod6
-	#`[
-	sub USAGE() {
-		say "You want to maintain the index?";
-		say "To build an index for '$PROGRAM-NAME -f'";
-		say "          $PROGRAM-NAME build";
-		say "\nTo list the index keys";
-		say "          $PROGRAM-NAME list";
-		say "\nTo display module name(s) containing key";
-		say "          $PROGRAM-NAME lookup";
-		say "\nTo show where the index file lives";
-		say "          $PROGRAM-NAME path-to-index";
-
-		say "\nWhat documentation do you want to read?";
-		say "Examples: $PROGRAM-NAME Str";
-		say "          $PROGRAM-NAME Str.split";
-		say "          $PROGRAM-NAME faq";
-		say "          $PROGRAM-NAME path/to/file";
-		say "\nSet the POD_TO_TEXT_ANSI if you want to use ANSI escape sequences to enhance text";
-
-		say "\nYou can list some top level documents:";
-		say "          $PROGRAM-NAME -l";
-
-		say "\nYou can also look up specific method/routine/sub definitions:";
-		say "          $PROGRAM-NAME -f hyper";
-		say "          $PROGRAM-NAME -f Array.push";
-
-		say "\nYou can bypass the pager and print straight to stdout:";
-		say "          $PROGRAM-NAME -n Str";
-	}
-	]
-
 	sub USAGE() {
 		say q:to/END/;
 			p6doc is a tool for reading perl6 documentation.
