@@ -10,7 +10,7 @@ For now, only testing from inside the repository is recommended.
 
 ## Usage
 
-*Note*: Right now things are moving an changing, so please refer to `p6doc -h`:
+*Note*: Right now things are moving and changing, so please refer to `p6doc -h`:
 
 ```
 p6doc is a tool for reading perl6 documentation.
