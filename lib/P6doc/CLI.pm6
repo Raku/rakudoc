@@ -64,7 +64,7 @@ package P6doc::CLI {
 	multi sub MAIN($docee, Bool :$n) {
 		return MAIN($docee, :f, :$n) if defined $docee.index('.');
 
-		put get-docs(locate-module($docee).IO, :package($docee));
+		say get-docs(locate-module($docee).IO, :package($docee));
 	}
 
 	multi sub MAIN($docee, Bool :$f!, Bool :$n) {
@@ -91,11 +91,11 @@ package P6doc::CLI {
 
 			my $m = locate-module($package);
 
-			put get-docs($m.IO, :section($method), :$package);
+			say get-docs($m.IO, :section($method), :$package);
 		} else {
 			my $m = locate-module($package);
 
-			put get-docs($m.IO, :section($method), :$package);
+			say get-docs($m.IO, :section($method), :$package);
 		}
 	}
 
@@ -112,7 +112,7 @@ package P6doc::CLI {
 	}
 
 	multi sub MAIN(Str $file where $file.IO.e, Bool :$n) {
-		put get-docs($file.IO);
+		say get-docs($file.IO);
 	}
 
 	# index related
@@ -123,5 +123,4 @@ package P6doc::CLI {
 	multi sub MAIN('build') {
 		build_index(INDEX);
 	}
-
 }
