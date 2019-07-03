@@ -74,6 +74,7 @@ sub get-docs(IO::Path $path, :$section, :$package is copy) returns Str is export
 
 sub show-docs(Str $docstr, :$no-pager) is export {
 	# Until show-docs is implemented
+	# show-docs will only handle paging and formatting, if desired
 	X::NYI.new( feature => "sub {&?ROUTINE.name}",
 				did-you-mean => "get-docs",
 				workaround => "Please be patient." ).throw;
