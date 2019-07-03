@@ -1,9 +1,8 @@
 use P6doc;
 use P6doc::Index;
+use JSON::Fast;
 
 package P6doc::CLI {
-	use MONKEY-SEE-NO-EVAL;
-
 	my $PROGRAM-NAME = "p6doc";
 
 	sub USAGE() {
@@ -38,7 +37,8 @@ package P6doc::CLI {
 
 	multi sub MAIN('list') {
 		if INDEX.IO.e {
-			my %data = EVAL slurp INDEX;
+			my %data = from-json slurp(INDEX);
+
 			for %data.keys.sort -> $name {
 				say $name
 				#    my $newdoc = %data{$docee}[0][0] ~ "." ~ %data{$docee}[0][1];
@@ -52,7 +52,7 @@ package P6doc::CLI {
 
 	multi sub MAIN('lookup', $key) {
 		if INDEX.IO.e {
-			my %data = EVAL slurp INDEX;
+			my %data = from-json slurp(INDEX);
 			die "not found" unless %data{$key};
 			say %data{$key}.split(" ").[0];
 		} else {
@@ -77,7 +77,7 @@ package P6doc::CLI {
 				build_index(INDEX);
 			}
 
-			my %data = EVALFILE INDEX;
+			my %data = from-json slurp(INDEX);
 
 			my $final-docee = disambiguate-f-search($docee, %data);
 

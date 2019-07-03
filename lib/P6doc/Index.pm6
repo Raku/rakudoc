@@ -1,5 +1,6 @@
 use P6doc::Utils;
 use File::Find;
+use JSON::Fast;
 
 unit module P6doc::Index;
 
@@ -55,8 +56,6 @@ sub build_index(IO::Path $index) is export {
 		}
 	}
 
-	my $out = open($index, :w);
-	$out.print(%words.perl);
-	$out.close;
+	spurt($index, to-json(%words, :!pretty));
 }
 

@@ -4,8 +4,7 @@ use Test;
 use P6doc;
 use P6doc::Index;
 
-# Until indexing changes
-use MONKEY-SEE-NO-EVAL;
+use JSON::Fast;
 
 plan 5;
 
@@ -17,7 +16,7 @@ subtest 'check for index file', {
 	}
 }
 
-my %index-data = EVALFILE INDEX;
+my %index-data = from-json slurp(INDEX);
 
 subtest 'search-paths', {
 	ok search-paths().join(' ').contains('/doc');
