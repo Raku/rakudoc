@@ -3,7 +3,17 @@ use Test;
 
 use P6doc;
 
-plan 6;
+plan 7;
+
+subtest 'get-doc nonexistent elements', {
+	# Nonexistent file
+	my $pod-path = 'doc/Type/NIKqvJAzKN4VWLggtb.pod6'.IO;
+	nok get-docs($pod-path);
+
+	# Nonexistent section
+	$pod-path = 'doc/Type/Str.pod6'.IO;
+	nok get-docs($pod-path, :section('NIKqvJAzKN4VWLggtb'));
+}
 
 subtest 'get-doc Str', {
 	my $pod-path = 'doc/Type/Str.pod6'.IO;
