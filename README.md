@@ -2,6 +2,12 @@
 
 The `p6doc` command line tool, improved!
 
+## Installation
+
+For now, only testing from inside the repository is recommended.
+
+`git clone https://github.com/noisegul/perl6-p6doc`
+
 ## Usage
 
 *Note*: Right now things are moving an changing, so please refer to `p6doc -h`:
