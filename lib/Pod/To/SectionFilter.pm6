@@ -11,8 +11,10 @@ class Pod::To::SectionFilter {
                 $heading-level = $b.level;
             }
         }
-        return "No documentation found for method '$search_for'"
-            unless defined $from;
+
+		if not defined($from) {
+			fail "No documentation found for method '$search_for'";
+		}
 
         my $to = @blocks.end;
         for $from + 1 .. @blocks.end -> $i {

@@ -53,9 +53,12 @@ sub is-pod(IO::Path $p) returns Bool {
 }
 
 sub get-docs(IO::Path $path, :$section, :$package is copy) returns Str is export {
+	if not $path.IO.e {
+		fail "File not found: $path";
+	}
+
 	if (is-pod($path)) eq False {
-		say "No Pod found in $path";
-		return
+		fail "No Pod found in $path";
 	}
 
 	my $proc = Proc.new: :err, :out, :merge;
