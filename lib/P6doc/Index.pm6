@@ -4,13 +4,13 @@ use JSON::Fast;
 
 unit module P6doc::Index;
 
-constant INDEX is export = findbin().add('index.data');
+constant INDEX is export = findbin().add('p6doc-index.json');
 
 sub get-index-path {
 	my IO::Path $index-path;
 
 	my @path-candidates = (
-		("$*HOME/.perl6").IO.add('p6doc-index.data'),
+		("$*HOME/.perl6").IO.add('p6doc-index.json'),
 	);
 	for @path-candidates -> $path {
 		if $path.e {
@@ -20,7 +20,7 @@ sub get-index-path {
 	}
 
 	unless $index-path.defined and $index-path.e {
-		fail "Unable to find p6doc-index.data at: {@path-candidates.join(', ')}"
+		fail "Unable to find p6doc-index.json at: {@path-candidates.join(', ')}"
 	}
 
 	return $index-path;

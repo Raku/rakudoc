@@ -12,4 +12,4 @@ precompiled
 .pod-cache
 
 # p6doc
-index.data
+p6doc-index.json
