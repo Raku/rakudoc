@@ -1,4 +1,3 @@
-use P6doc::Utils;
 use File::Find;
 
 use JSON::Fast;
