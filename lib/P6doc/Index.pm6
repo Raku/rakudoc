@@ -5,27 +5,31 @@ use JSON::Fast;
 
 unit module P6doc::Index;
 
-constant INDEX is export = findbin().add('p6doc-index.json');
+constant $index-filename = 'p6doc-index.json';
 
-sub get-index-path {
+constant @index-path-candidates = Array[IO::Path](
+	("$*HOME/.perl6").IO.add($index-filename),
+	$*CWD.add($index-filename)
+);
+
+sub get-index-path returns IO::Path {
 	my IO::Path $index-path;
 
-	my @path-candidates = (
-		("$*HOME/.perl6").IO.add('p6doc-index.json'),
-	);
-	for @path-candidates -> $path {
-		if $path.e {
-			$index-path = $path;
+	for @index-path-candidates -> $p {
+		if $p.e {
+			$index-path = $p;
 			last;
 		}
 	}
 
 	unless $index-path.defined and $index-path.e {
-		fail "Unable to find p6doc-index.json at: {@path-candidates.join(', ')}"
+		fail "Unable to find p6doc-index.json at: {@index-path-candidates.join(', ')}"
 	}
 
 	return $index-path;
 }
+
+constant INDEX is export = @index-path-candidates.first;
 
 sub build-index(IO::Path $index) is export {
 	my %words;
