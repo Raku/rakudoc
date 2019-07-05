@@ -10,7 +10,7 @@ plan 5;
 
 subtest 'check for index file', {
 	if not INDEX.IO.e {
-		ok build_index(INDEX), 'building index...';
+		ok build-index(INDEX), 'building index...';
 	} else {
 		skip 'index file already exists';
 	}

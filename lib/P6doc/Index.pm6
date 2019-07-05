@@ -1,5 +1,6 @@
 use P6doc::Utils;
 use File::Find;
+
 use JSON::Fast;
 
 unit module P6doc::Index;
@@ -26,7 +27,7 @@ sub get-index-path {
 	return $index-path;
 }
 
-sub build_index(IO::Path $index) is export {
+sub build-index(IO::Path $index) is export {
 	my %words;
 
 	# XXX should index more than this - currently only core pod

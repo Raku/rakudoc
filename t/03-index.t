@@ -12,7 +12,7 @@ subtest 'sub build_index', {
 		ok unlink(INDEX), 'Cleaning index file...';
 	}
 
-	build_index(INDEX);
+	build-index(INDEX);
 
 	ok INDEX.e, 'index file exists';
 	nok INDEX.z, 'index file is not empty';

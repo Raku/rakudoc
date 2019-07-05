@@ -74,7 +74,7 @@ package P6doc::CLI {
 
 			if not INDEX.IO.e {
 				say "building index on first run. Please wait...";
-				build_index(INDEX);
+				build-index(INDEX);
 			}
 
 			my %data = from-json slurp(INDEX);
@@ -121,6 +121,6 @@ package P6doc::CLI {
 	}
 
 	multi sub MAIN('build') {
-		build_index(INDEX);
+		build-index(INDEX);
 	}
 }
