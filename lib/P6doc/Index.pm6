@@ -62,4 +62,3 @@ sub build-index(IO::Path $index) is export {
 
 	spurt($index, to-json(%words, :!pretty));
 }
-
