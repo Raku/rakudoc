@@ -1,8 +1,9 @@
 use File::Find;
-
 use JSON::Fast;
 
 unit module P6doc::Index;
+
+use P6doc::Utils;
 
 constant $index-filename = 'p6doc-index.json';
 
@@ -33,14 +34,7 @@ constant INDEX is export = @index-path-candidates.first;
 sub build-index(IO::Path $index) is export {
 	my %words;
 
-	# XXX should index more than this - currently only core pod
-	# NOTE: Temporarily use the doc folder relative to the Current
-	#       Working Directory $*CWD instead of using
-	#       $*REPO.repo-chain() to find it, for easier testing.
-	my @locations = ($*CWD>>.add: 'doc').grep: *.IO.d;
-	#my @locations = ($*REPO.repo-chain()>>.Str X~ "{$*SPEC.dir-sep}doc{$*SPEC.dir-sep}").grep: *.IO.d;
-
-	for @locations -> $lib_path is copy {
+	for @mini-doc-locations -> $lib_path is copy {
 		# for p6doc -f only looking under "Type" directory is useful (and faster)
 		my @files = find(:dir($lib_path.IO.add("Type")),:type('file'));
 
