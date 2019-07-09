@@ -1,4 +1,5 @@
 use P6doc;
+use P6doc::Utils;
 use P6doc::Index;
 use JSON::Fast;
 
