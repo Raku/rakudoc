@@ -15,11 +15,6 @@ my class X::P6doc is Exception {
 	}
 }
 
-sub search-paths() returns Seq is export {
-	#return (('.', |$*REPO.repo-chain())>>.Str X~ </doc/>).grep: *.IO.d;
-	return (('.', |$*CWD)>>.Str X~ </doc/>).grep: *.IO.d
-}
-
 sub module-names(Str $modulename) returns Seq is export {
 	$modulename.split('::').join('/') X~ <.pm .pm6 .pod .pod6>;
 }
