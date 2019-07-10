@@ -37,8 +37,8 @@ subtest 'p6doc', {
 	$p = run($*EXECUTABLE, '-Ilib', TP6DOC, 'list', :out, :err);
 	is $p.exitcode, 0, 'p6doc list';
 
-	$p = run($*EXECUTABLE, '-Ilib', TP6DOC, 'path-to-index', :out, :err);
-	is $p.exitcode, 0, 'p6doc path-to-index';
+	$p = run($*EXECUTABLE, '-Ilib', TP6DOC, 'env', :out, :err);
+	is $p.exitcode, 0, 'p6doc env';
 
 	$p = run($*EXECUTABLE, '-Ilib', TP6DOC, 'Str', :out, :err);
 	is $p.exitcode, 0, 'p6doc Str';
