@@ -6,26 +6,26 @@ use JSON::Fast;
 package P6doc::CLI {
 	my $PROGRAM-NAME = "p6doc";
 
-	sub USAGE() {
-		say q:to/END/;
-			p6doc is a tool for reading perl6 documentation.
+    sub USAGE() {
+        say q:to/END/;
+            p6doc is a tool for reading perl6 documentation.
 
-			Usage:
+            Usage:
 
-				p6doc <command> [argument]
+                p6doc <command> [argument]
 
-			Commands:
+            Commands:
 
-				build           build an index for p6doc -f
-				list            list the index keys
-				path-to-index   show where the index file lives
+                build       build an index for p6doc -f
+                list        list the index keys
+                env         show information on p6doc's environment
 
-			Examples:
+            Examples:
 
-				p6doc Str
-				p6doc Str.split
-			END
-	}
+                p6doc Str
+                p6doc Str.split
+            END
+    }
 
 	proto MAIN(|) is export {
 		{*}
@@ -117,8 +117,9 @@ package P6doc::CLI {
 	}
 
 	# index related
-	multi sub MAIN('path-to-index') {
-		say INDEX if INDEX.IO.e;
+	multi sub MAIN('env') {
+		say "INDEX=\"{INDEX}\"";
+		say "DOC=\"{@mini-doc-locations}\"";
 	}
 
 	multi sub MAIN('build') {
