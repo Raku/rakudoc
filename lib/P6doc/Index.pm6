@@ -34,18 +34,21 @@ constant INDEX is export = @index-path-candidates.first;
 sub build-index(IO::Path $index) is export {
 	my %words;
 
-	for @mini-doc-locations -> $lib_path is copy {
+	for @mini-doc-locations -> $lib_path {
 		# for p6doc -f only looking under "Type" directory is useful (and faster)
-		my @files = find(:dir($lib_path.IO.add("Type")),:type('file'));
+		my @files = find(:dir($lib_path.IO.add("Type")), :type('file'));
 
 		for @files -> $f {
 			my $file = $f.path;
-			next if $file !~~ /\.pod6?$/;
+			next if $file.IO.extension !eq 'pod6';
+
 			my $pod = substr($file.Str, 0 , $file.Str.chars -4);
-			$pod.=subst($lib_path,"");
-			$pod.=subst(/"{$*SPEC.dir-sep}"/,'::',:g);
+
+			$pod .= subst($lib_path,"");
+			$pod .= subst(/"{$*SPEC.dir-sep}"/,'::',:g);
 			my $section = '';
-			for open( $file.Str).lines -> $row {
+
+			for open($file.Str).lines -> $row {
 				if $row ~~ /^\=(item|head\d) \s+ (.*?) \s*$/ {
 					$section = $1.Str if $1.defined;
 					%words{$section}.push([$pod, $section]) if $section ~~ m/^("method "|"sub "|"routine ")/;
