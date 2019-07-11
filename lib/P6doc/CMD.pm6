@@ -119,7 +119,7 @@ package P6doc::CLI {
 	# index related
 	multi sub MAIN('env') {
 		my Str $index-info = "Index file: {INDEX}";
-		my Str $doc-info = "Doc folder: {get-doc-location}";
+		my Str $doc-info = "Doc folder: {get-doc-locations}";
 
 		say $index-info;
 		say $doc-info;

@@ -34,21 +34,25 @@ constant INDEX is export = @index-path-candidates.first;
 sub build-index(IO::Path $index) is export {
 	my %words;
 
-	for @mini-doc-locations -> $lib_path {
+	for get-doc-locations() -> $lib-path {
 		# for p6doc -f only looking under "Type" directory is useful (and faster)
-		my @files = find(:dir($lib_path.IO.add("Type")), :type('file'));
+		my @files = find(:dir($lib-path.IO.add("Type")), :type('file'));
 
 		for @files -> $f {
-			my $file = $f.path;
-			next if $file.IO.extension !eq 'pod6';
+			# Remove the windows only volume portion
+			my $f-clean = $f.dirname.IO.add($f.basename);
+			my $lib-path-clean = $lib-path.dirname.IO.add($lib-path.basename);
 
-			my $pod = substr($file.Str, 0 , $file.Str.chars -4);
+			next if $f-clean.extension !eq 'pod6';
 
-			$pod .= subst($lib_path,"");
-			$pod .= subst(/"{$*SPEC.dir-sep}"/,'::',:g);
+			# Remove only the extension from the path
+			my $pod = $f-clean.extension("");
+
+			$pod .= subst($lib-path-clean, "");
+			$pod .= subst(/"{$*SPEC.dir-sep}"/, '::', :g);
 			my $section = '';
 
-			for open($file.Str).lines -> $row {
+			for open($f).lines -> $row {
 				if $row ~~ /^\=(item|head\d) \s+ (.*?) \s*$/ {
 					$section = $1.Str if $1.defined;
 					%words{$section}.push([$pod, $section]) if $section ~~ m/^("method "|"sub "|"routine ")/;
@@ -57,5 +61,5 @@ sub build-index(IO::Path $index) is export {
 		}
 	}
 
-	spurt($index, to-json(%words, :!pretty));
+	spurt($index, to-json(%words));
 }
