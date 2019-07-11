@@ -118,11 +118,15 @@ package P6doc::CLI {
 
 	# index related
 	multi sub MAIN('env') {
-		say "INDEX=\"{INDEX}\"";
-		say "DOC=\"{@mini-doc-locations}\"";
+		my Str $index-info = "Index file: {INDEX}";
+		my Str $doc-info = "Doc folder: {get-doc-location}";
+
+		say $index-info;
+		say $doc-info;
 	}
 
 	multi sub MAIN('build') {
+		say "Building index file...";
 		build-index(INDEX);
 	}
 }
