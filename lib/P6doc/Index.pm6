@@ -31,6 +31,14 @@ sub get-index-path returns IO::Path {
 
 constant INDEX is export = @index-path-candidates.first;
 
+enum FunctionForm <Routine Method Sub>;
+
+class Indexable {
+	has Str $.type;
+	has FunctionForm $.function-form;
+	has Str $.function-name;
+}
+
 sub build-index(IO::Path $index) is export {
 	my %words;
 
@@ -41,7 +49,7 @@ sub build-index(IO::Path $index) is export {
 		for @files -> $f {
 			# Remove the windows only volume portion
 			my $f-clean = $f.dirname.IO.add($f.basename);
-			my $lib-path-clean = $lib-path.dirname.IO.add($lib-path.basename);
+			my $lib-path-clean = $lib-path.IO.dirname.IO.add($lib-path.IO.basename);
 
 			next if $f-clean.extension !eq 'pod6';
 
