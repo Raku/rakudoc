@@ -31,14 +31,6 @@ sub get-index-path returns IO::Path {
 
 constant INDEX is export = @index-path-candidates.first;
 
-enum FunctionForm <Routine Method Sub>;
-
-class Indexable {
-	has Str $.type;
-	has FunctionForm $.function-form;
-	has Str $.function-name;
-}
-
 sub build-index(IO::Path $index) is export {
 	my %words;
 
