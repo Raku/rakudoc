@@ -3,7 +3,7 @@ use P6doc::Utils;
 use P6doc::Index;
 use JSON::Fast;
 
-package P6doc::CLI {
+package P6doc::CMD {
 	my $PROGRAM-NAME = "p6doc";
 
     sub USAGE() {
