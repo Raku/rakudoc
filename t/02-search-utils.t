@@ -20,7 +20,9 @@ subtest 'check for index file', {
 my %index-data = from-json slurp(INDEX);
 
 subtest 'search-paths', {
-	ok search-paths().join(' ').contains('/doc');
+	my $d = search-paths().join(' ').contains('/doc');
+	my $td = search-paths().join(' ').contains('/test-doc');
+	ok ($d or $td);
 }
 
 subtest 'module-names', {
@@ -36,17 +38,11 @@ subtest 'module-names', {
 subtest 'locate-module', {
 	my Str $lm;
 
-	$lm = locate-module('Str');
-	ok $lm.contains('doc');
-	ok $lm.contains('Type');
-	ok $lm.contains('Str');
-	ok $lm.contains('/');
+	$lm = locate-module('Map');
+	ok $lm.contains('Map');
 
-	$lm = locate-module('IO');
-	ok $lm.contains('doc');
-	ok $lm.contains('Type');
-	ok $lm.contains('IO');
-	ok $lm.contains('/');
+	$lm = locate-module('Cool');
+	ok $lm.contains('Cool');
 }
 
 subtest 'disambiguate-f-search', {

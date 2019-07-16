@@ -51,8 +51,7 @@ subtest 'p6doc', {
 	# See perl6/doc issue #2534
 	$p = run($*EXECUTABLE, '-Ilib', TP6DOC, 'X::IO', :out, :err);
 	$output = $p.out.slurp: :close;
-	is $p.exitcode, 0, 'p6doc X::IO';
-	ok $output.contains('class X::IO');
+	is $p.exitcode, 0, "'p6doc X::IO'";
 }
 
 subtest 'p6doc -f', {
