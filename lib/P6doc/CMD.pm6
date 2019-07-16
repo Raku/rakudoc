@@ -22,8 +22,8 @@ package P6doc::CMD {
 
             Examples:
 
-                p6doc Str
-                p6doc Str.split
+                p6doc Map
+                p6doc Map.new
             END
     }
 
@@ -33,6 +33,7 @@ package P6doc::CMD {
 
 	multi MAIN(Bool :h(:$help)?) {
 		USAGE();
+
 		exit;
 	}
 
@@ -63,13 +64,16 @@ package P6doc::CMD {
 	}
 
 	multi sub MAIN($docee, Bool :$n) {
+		# On windows, if input is not surrounded by '', it will be malformed
+		# Example: `p6doc X::IO` will pass `X:/:IO` to MAIN.
+		# This should be checked for and corrected.
+
 		return MAIN($docee, :f, :$n) if defined $docee.index('.');
 
 		say get-docs(locate-module($docee).IO, :package($docee));
 	}
 
 	multi sub MAIN($docee, Bool :$f!, Bool :$n) {
-
 		my ($package, $method) = $docee.split('.');
 		if ! $method {
 

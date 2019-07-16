@@ -23,8 +23,7 @@ subtest 'p6doc build', {
 	is INDEX.z, False, 'index file not empty';
 
 	my $raw-index = INDEX.slurp;
-	ok $raw-index.contains('split');
-	ok $raw-index.contains('prompt');
+	ok $raw-index.contains('method new');
 }
 
 subtest 'p6doc', {
@@ -40,20 +39,20 @@ subtest 'p6doc', {
 	$p = run($*EXECUTABLE, '-Ilib', TP6DOC, 'env', :out, :err);
 	is $p.exitcode, 0, 'p6doc env';
 
-	$p = run($*EXECUTABLE, '-Ilib', TP6DOC, 'Str', :out, :err);
-	is $p.exitcode, 0, 'p6doc Str';
+	$p = run($*EXECUTABLE, '-Ilib', TP6DOC, 'Map', :out, :err);
+	is $p.exitcode, 0, 'p6doc Map';
 
-	$p = run($*EXECUTABLE, '-Ilib', TP6DOC, 'Str.split', :out, :err);
-	is $p.exitcode, 0, 'p6doc Str.split';
+	$p = run($*EXECUTABLE, '-Ilib', TP6DOC, 'Map.new', :out, :err);
+	is $p.exitcode, 0, 'p6doc Map.new';
 
-	$p = run($*EXECUTABLE, '-Ilib', TP6DOC, 'IO', :out, :err);
-	is $p.exitcode, 0, 'p6doc IO';
+	$p = run($*EXECUTABLE, '-Ilib', TP6DOC, 'Cool', :out, :err);
+	is $p.exitcode, 0, 'p6doc Cool';
 
 	# See perl6/doc issue #2534
-	$p = run($*EXECUTABLE, '-Ilib', TP6DOC, 'IO::Path', :out, :err);
+	$p = run($*EXECUTABLE, '-Ilib', TP6DOC, 'X::IO', :out, :err);
 	$output = $p.out.slurp: :close;
-	is $p.exitcode, 0, 'p6doc IO::Path';
-	ok $output.contains('class IO::Path');
+	is $p.exitcode, 0, 'p6doc X::IO';
+	ok $output.contains('class X::IO');
 }
 
 subtest 'p6doc -f', {
@@ -67,16 +66,10 @@ subtest 'p6doc -f', {
 	nok $output.contains('No such type'), 'p6doc -f exit';
 	isnt $output, '';
 
-	$p = run($*EXECUTABLE, '-Ilib', TP6DOC, '-f', 'done', :out, :err, :merge);
+	$p = run($*EXECUTABLE, '-Ilib', TP6DOC, '-f', 'new', :out, :err, :merge);
 	$output = $p.out.slurp: :close;
 	nok $output.contains('No documentation found'), 'p6doc -f done';
 	nok $output.contains('No such type'), 'p6doc -f done';
-	isnt $output, '';
-
-	$p = run($*EXECUTABLE, '-Ilib', TP6DOC, '-f', 'prompt', :out, :err, :merge);
-	$output = $p.out.slurp: :close;
-	nok $output.contains('No documentation found'), 'p6doc -f prompt';
-	nok $output.contains('No such type'), 'p6doc -f prompt';
 	isnt $output, '';
 }
 

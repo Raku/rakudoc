@@ -16,7 +16,7 @@ my class X::P6doc is Exception {
 }
 
 sub module-names(Str $modulename) returns Seq is export {
-	$modulename.split('::').join('/') X~ <.pm .pm6 .pod .pod6>;
+	return $modulename.split('::').join('/') X~ <.pm .pm6 .pod .pod6>;
 }
 
 sub locate-module(Str $modulename) is export {
@@ -160,8 +160,8 @@ sub prompt-with-options(%options, %found) {
 sub locate-curli-module($module) {
 	my $cu = try $*REPO.need(CompUnit::DependencySpecification.new(:short-name($module)));
 	unless $cu.DEFINITE {
-		note "No such type '$module'";
-		exit 1;
+		fail "No such type '$module'";
+		#exit 1;
 	}
 	return ~ $cu.repo.prefix.child('sources/' ~ $cu.repo-id);
 }
