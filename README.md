@@ -6,7 +6,7 @@ The `p6doc` command line tool, improved!
 
 For now, only testing from inside the repository is recommended.
 
-`git clone https://github.com/noisegul/perl6-p6doc`
+`git clone --recurse-submodules https://github.com/noisegul/perl6-p6doc`
 
 ## Usage
 
@@ -27,6 +27,6 @@ For now, only testing from inside the repository is recommended.
 
             Examples:
 
-                p6doc Str
-                p6doc Str.split
+                p6doc Map
+                p6doc Map.new
 ```
