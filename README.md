@@ -13,20 +13,20 @@ For now, only testing from inside the repository is recommended.
 *Note*: Right now things are moving and changing, so please refer to `p6doc -h`:
 
 ```
-            p6doc is a tool for reading perl6 documentation.
+p6doc is a tool for reading perl6 documentation.
 
-            Usage:
+Usage:
 
-                p6doc <command> [argument]
+p6doc <command> [argument]
 
-            Commands:
+Commands:
 
-                build       build an index for p6doc -f
-                list        list the index keys
-                env         show information on p6doc's environment
+build       build an index for p6doc -f
+list        list the index keys
+env         show information on p6doc's environment
 
-            Examples:
+Examples:
 
-                p6doc Map
-                p6doc Map.new
+p6doc Map
+p6doc Map.new
 ```
