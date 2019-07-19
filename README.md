@@ -2,6 +2,12 @@
 
 The `p6doc` command line tool, improved!
 
+## Prerequisites
+
+- Linux, OSX
+- Rakudo 2019.03
+- zef 0.7.4
+
 ## Installation
 
 For now, only testing from inside the repository is recommended.
