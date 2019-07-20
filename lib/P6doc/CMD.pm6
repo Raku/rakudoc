@@ -37,21 +37,6 @@ package P6doc::CMD {
 		exit;
 	}
 
-	multi sub MAIN('list') {
-		if INDEX.IO.e {
-			my %data = from-json slurp(INDEX);
-
-			for %data.keys.sort -> $name {
-				say $name
-				#    my $newdoc = %data{$docee}[0][0] ~ "." ~ %data{$docee}[0][1];
-				#    return MAIN($newdoc, :f);
-			}
-		} else {
-			say "First run   $*PROGRAM-NAME build    to create the index";
-			exit;
-		}
-	}
-
 	multi sub MAIN($docee, Bool :$n) {
 		# On windows, if input is not surrounded by '', it will be malformed
 		# Example: `p6doc X::IO` will pass `X:/:IO` to MAIN.
