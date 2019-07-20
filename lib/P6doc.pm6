@@ -1,8 +1,12 @@
 use P6doc::Utils;
 
-unit module P6doc;
+use Perl6::Documentable;
+use Perl6::Documentable::Processing;
 
 use JSON::Fast;
+use Pod::To::Text;
+
+unit module P6doc;
 
 constant DEBUG      = %*ENV<P6DOC_DEBUG>;
 constant INTERACT   = %*ENV<P6DOC_INTERACT>;
