@@ -188,4 +188,113 @@ sub list-installed() is export {
 	}
 }
 
+###
+###
+###
+
+#| Create a Perl6::Documentable::Registry for the given directory
+sub compose-registry(
+	$topdir,
+	@dirs = ['Type'] ) returns Perl6::Documentable::Registry
+{
+	my $registry = process-pod-collection(
+		cache => False,
+		verbose => False,
+		topdir => $topdir,
+		dirs => @dirs
+	);
+	$registry.compose;
+
+	return $registry
+}
+
+#| Search for a single Routine/Method/Subroutine, e.g. `split`
+sub f-search(
+	Str $routine,
+	@topdirs = get-doc-locations() ) returns Array[Perl6::Documentable] is export
+{
+	my Perl6::Documentable @results;
+
+	for @topdirs -> $td {
+		my $registry = compose-registry($td);
+
+		# The result from `.lookup` is containerized, thus we use `.list`
+		for $registry.lookup($routine, :by<name>).list -> $r {
+			@results.append: $r;
+		}
+	}
+
+	return @results
+}
+
+#| Search for documentation in association with a type, e.g. `Map`, `Map.new`
+sub t-search(
+	Str $type,
+	Str :$routine?,
+	:@topdirs = get-doc-locations() ) returns Array[Perl6::Documentable] is export
+{
+	my Perl6::Documentable @results;
+
+	for @topdirs -> $td {
+		my $registry = compose-registry($td);
+
+		for $registry.lookup($type, :by<name>).list -> $r {
+			@results.append: $r;
+		}
+	}
+
+	@results = @results.grep: *.subkinds.contains('class');
+
+	# If we provided a routine to search for, we now look for it inside the found classes
+	# and return an array of those results instead
+	if defined $routine {
+		my Perl6::Documentable @filtered-results;
+
+		for @results -> $rs {
+			# Loop definitions, look for searched routine
+			# `.defs` contains a list of Perl6::Documentables defined inside
+			# a given object.
+			for $rs.defs -> $def {
+				if $def.name eq $routine {
+					@filtered-results.push($def);
+				}
+			}
+		}
+
+		return @filtered-results;
+	}
+
+	return @results
+}
+
+#|
+sub show-f-search-results(Perl6::Documentable @results) is export {
+	if @results.elems == 1 {
+		say pod2text(@results.first.pod);
+	} elsif @results.elems < 1 {
+		say "No matches";
+	} else {
+		say 'Multiple matches:';
+		for @results -> $r {
+			# `.origin.name` gives us the correct name of the pod our
+			# documentation is defined in originally
+			say "    {$r.origin.name} {$r.subkinds} {$r.name}";
+		}
+	}
+}
+
+#|
+sub show-t-search-results(Perl6::Documentable @results) is export {
+	if @results.elems == 1 {
+		say pod2text(@results.first.pod);
+	} elsif @results.elems < 1 {
+		say "No matches";
+	} else {
+		say 'Multiple matches:';
+		for @results -> $r {
+			say "    {$r.subkinds} {$r.name}";
+		}
+	}
+}
+
 # vim: expandtab shiftwidth=4 ft=perl6
