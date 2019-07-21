@@ -118,6 +118,7 @@ package P6doc::CMD {
             Commands:
 
                 -r          search by routine name
+				-d			specify a standard doc directory
                 env         show information on p6doc's environment
 
             Examples:
@@ -125,37 +126,55 @@ package P6doc::CMD {
                 p6doc Map
                 p6doc Map.new
                 p6doc -r=abs
+				p6doc -d=./doc Map
+				p6doc -d=./doc -r=split
             END
     }
 
-    proto MAIN(|) is export {
-        {*}
-    }
+	proto MAIN(|) is export {
+		{*}
+	}
 
-    multi MAIN(Bool :h(:$help)?) {
-        USAGE();
+	multi MAIN(Bool :h(:$help)?) {
+		USAGE();
 
-        exit;
-    }
+		exit;
+	}
 
-    multi MAIN(Str $query) {
-        if not $query.contains('.') {
-            my Perl6::Documentable @results = t-search($query);
-            show-t-search-results(@results);
-        } else {
-            my @squery = $query.split('.');
+	multi MAIN(Str $query, Str :d($dir)) {
+		my @dirs;
 
-            if not @squery.elems == 2 {
-                fail 'Malformed input, example: Map.elems';
-            } else {
-                my Perl6::Documentable @results = t-search(@squery[0], :routine(@squery[1]));
-                show-t-search-results(@results);
-            }
-        }
-    }
+		if defined $dir and $dir.IO.d {
+			@dirs = [$dir];
+		} else {
+			@dirs = get-doc-locations();
+		}
 
-    multi MAIN(Str :r($routine)) {
-        my Perl6::Documentable @results = f-search($routine);
-        show-f-search-results(@results);
-    }
+		if not $query.contains('.') {
+			my Perl6::Documentable @results = t-search($query, :topdirs(@dirs));
+			show-t-search-results(@results);
+		} else {
+			my @squery = $query.split('.');
+
+			if not @squery.elems == 2 {
+				fail 'Malformed input, example: Map.elems';
+			} else {
+				my Perl6::Documentable @results = t-search(@squery[0], :routine(@squery[1]), :topdirs(@dirs));
+				show-t-search-results(@results);
+			}
+		}
+	}
+
+	multi MAIN(Str :r($routine), Str :d($dir)) {
+		my @dirs;
+
+		if defined $dir and $dir.IO.d {
+			@dirs = [$dir];
+		} else {
+			@dirs = get-doc-locations();
+		}
+
+		my Perl6::Documentable @results = f-search($routine, :topdirs(@dirs));
+		show-f-search-results(@results);
+	}
 }

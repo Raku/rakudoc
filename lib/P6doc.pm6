@@ -211,7 +211,7 @@ sub compose-registry(
 #| Search for a single Routine/Method/Subroutine, e.g. `split`
 sub f-search(
 	Str $routine,
-	@topdirs = get-doc-locations() ) returns Array[Perl6::Documentable] is export
+	:@topdirs = get-doc-locations() ) returns Array[Perl6::Documentable] is export
 {
 	my Perl6::Documentable @results;
 
