@@ -126,8 +126,8 @@ package P6doc::CMD {
                 p6doc Map
                 p6doc Map.new
                 p6doc -r=abs
-				p6doc -d=./doc Map
-				p6doc -d=./doc -r=split
+				p6doc -d=./large-doc Map
+				p6doc -d=./large-doc -r=split
             END
     }
 
@@ -146,6 +146,8 @@ package P6doc::CMD {
 
 		if defined $dir and $dir.IO.d {
 			@dirs = [$dir];
+		} elsif defined $dir {
+			fail "$dir does not exist, or is not a directory";
 		} else {
 			@dirs = get-doc-locations();
 		}
@@ -168,8 +170,11 @@ package P6doc::CMD {
 	multi MAIN(Str :r($routine), Str :d($dir)) {
 		my @dirs;
 
+
 		if defined $dir and $dir.IO.d {
 			@dirs = [$dir];
+		} elsif defined $dir {
+			fail "$dir does not exist, or is not a directory";
 		} else {
 			@dirs = get-doc-locations();
 		}
@@ -177,4 +182,5 @@ package P6doc::CMD {
 		my Perl6::Documentable @results = f-search($routine, :topdirs(@dirs));
 		show-f-search-results(@results);
 	}
+
 }
