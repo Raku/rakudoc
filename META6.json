@@ -9,7 +9,7 @@
     "provides" : {
         "P6doc" : "lib/P6doc.pm6"
     },
-    "depends" : ["JSON::Fast:ver<0.9.18>", "File::Find:ver<0.1>, Perl6::Documentable:ver<1.1.3>"],
+    "depends" : ["JSON::Fast:ver<0.9.18>", "Path::Finder:ver<0.2.0>", "Perl6::Documentable:ver<1.1.3>"],
     "build-depends" : [ ],
     "test-depends" : [ ],
     "resources" : [ ],
