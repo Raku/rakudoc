@@ -6,6 +6,9 @@ use Perl6::Documentable::Processing;
 use JSON::Fast;
 use Pod::To::Text;
 
+use Path::Finder;
+
+
 unit module P6doc;
 
 constant DEBUG      = %*ENV<P6DOC_DEBUG>;
@@ -208,8 +211,41 @@ sub compose-registry(
 	return $registry
 }
 
+#| Receive a list of pod files and process them, return a list of Perl6::Documentable objects
+sub process-pods(IO::Path @files) returns Array[Perl6::Documentable] {
+	...
+}
+
+#| Create a list of relevant files in a given directory (recursively, if necessary)
+sub type-list-files(Str $query, $dir) is export {
+	my @results;
+	my $searchname;
+
+	my $query-depth = 0;
+
+	my $finder = Path::Finder;
+
+	if $query.contains('::') {
+		# Add one to the number of elements to receive the correct depth
+		$query-depth = $query.split('::').elems + 1;
+		$searchname = $query.split('::').tail;
+
+	} else {
+		$searchname = $query;
+	}
+
+	$finder = $finder.depth($query-depth);
+	$finder = $finder.name("{$searchname}.pod6");
+
+	for $finder.in($dir, :file) -> $file {
+		@results.push($file);
+	}
+
+	return @results;
+}
+
 #| Search for a single Routine/Method/Subroutine, e.g. `split`
-sub f-search(
+sub routine-search(
 	Str $routine,
 	:@topdirs = get-doc-locations() ) returns Array[Perl6::Documentable] is export
 {
@@ -228,7 +264,7 @@ sub f-search(
 }
 
 #| Search for documentation in association with a type, e.g. `Map`, `Map.new`
-sub t-search(
+sub type-search(
 	Str $type,
 	Str :$routine?,
 	:@topdirs = get-doc-locations() ) returns Array[Perl6::Documentable] is export
