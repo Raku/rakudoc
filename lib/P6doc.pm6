@@ -165,10 +165,6 @@ sub prompt-with-options(%options, %found) {
 	return $final-docee;
 }
 
-###
-### NEXT
-###
-
 sub locate-curli-module($module) {
 	my $cu = try $*REPO.need(CompUnit::DependencySpecification.new(:short-name($module)));
 	unless $cu.DEFINITE {
@@ -197,7 +193,7 @@ sub list-installed() is export {
 }
 
 ###
-###
+### NEXT
 ###
 
 #| Create a Perl6::Documentable::Registry for the given directory
@@ -235,28 +231,28 @@ sub process-type-pods(IO::Path @files) returns Array[Perl6::Documentable] is exp
 
 #| Search for relevant files in a given directory (recursively, if necessary),
 #| and return a list of the results.
-#| $query is the name of the type in the form `Str`, `IO::Spec::Unix` etc..
+#| $type-name is the name of the type in the form `Str`, `IO::Spec::Unix` etc..
 #| This assumes that $dir is the base directory for the pod files, example: for
 #| the standard documentation folder 'doc', `$dir` should be `'doc'.IO.add('Type')`.
-sub type-list-files(Str $query, $dir) returns Array[IO::Path] is export {
+sub type-list-files(Str $type-name, $dir) returns Array[IO::Path] is export {
 	my IO::Path @results;
-	my $searchname;
+	my $search-name;
 
 	# TODO: Depth not yet optimal
 	my $query-depth = 0..2;
 
 	my $finder = Path::Finder;
 
-	if $query.contains('::') {
-		$query-depth = $query.split('::').elems + 1;
-		$searchname = $query.split('::').tail;
+	if $type-name.contains('::') {
+		$query-depth = $type-name.split('::').elems + 1;
+		$search-name = $type-name.split('::').tail;
 
 	} else {
-		$searchname = $query;
+		$search-name = $type-name;
 	}
 
 	$finder = $finder.depth($query-depth);
-	$finder = $finder.name("{$searchname}.pod6");
+	$finder = $finder.name("{$search-name}.pod6");
 
 	for $finder.in($dir, :file) -> $file {
 		@results.push($file);
