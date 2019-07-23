@@ -2,7 +2,7 @@ use v6.d;
 
 use Test;
 
-plan 2;
+plan 1;
 
 subtest 'Core', {
 	use-ok('P6doc');

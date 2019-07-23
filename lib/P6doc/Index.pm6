@@ -1,5 +1,5 @@
 # TODO: Replace with Path::Finder
-use File::Find;
+#use File::Find;
 use JSON::Fast;
 
 unit module P6doc::Index;
@@ -32,6 +32,7 @@ sub get-index-path returns IO::Path {
 
 constant INDEX is export = @index-path-candidates.first;
 
+#`[
 sub build-index(IO::Path $index) is export {
 	my %words;
 
@@ -64,3 +65,4 @@ sub build-index(IO::Path $index) is export {
 
 	spurt($index, to-json(%words));
 }
+]
