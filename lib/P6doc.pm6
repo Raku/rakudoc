@@ -263,28 +263,28 @@ sub routine-search(
 	return @results
 }
 
-#| Search for documentation in association with a type, e.g. `Map`, `Map.new`
+#| Lookup documentation in association with a type, e.g. `Map`, `Map.new`.
+#| `$dir` makes the same assumption as `type-list-files`.
+# TODO: might be cleaner to just give it a list of Perl6::Documentable objects
 sub type-search(
-	Str $type,
+	Str $type-name,
 	Str :$routine?,
-	:@topdirs = get-doc-locations() ) returns Array[Perl6::Documentable] is export
+	IO::Path :$dir where *.d = get-doc-locations().first) returns Array[Perl6::Documentable] is export
 {
 	my Perl6::Documentable @results;
 
-	for @topdirs -> $td {
-		my $registry = compose-registry($td);
+	my IO::Path @files = type-list-files($type-name, $dir);
+	@results = process-type-pods(@files);
 
-		for $registry.lookup($type, :by<name>).list -> $r {
-			@results.append: $r;
-		}
-	}
-
-	@results = @results.grep: *.subkinds.contains('class');
+	# Old, filter for class
+	#@results = @results.grep: *.subkinds.contains('class');
+	# New, filter only by name, since we already pre sieve with type-list-files
+	@results = @results.grep: *.name eq $type-name;
 
 	# If we provided a routine to search for, we now look for it inside the found classes
 	# and return an array of those results instead
 	if defined $routine {
-		my Perl6::Documentable @filtered-results;
+		my Perl6::Documentable @routine-results;
 
 		for @results -> $rs {
 			# Loop definitions, look for searched routine
