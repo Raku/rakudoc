@@ -127,6 +127,7 @@ package P6doc::CMD {
                 p6doc Map.new
                 p6doc -r=abs
 				p6doc -d=./large-doc Map
+				p6doc -d=./large-doc IO::Path
 				p6doc -d=./large-doc -r=split
             END
     }
@@ -142,10 +143,12 @@ package P6doc::CMD {
 	}
 
 	multi MAIN(Str $query, Str :d($dir)) {
+		# TODO: This is currently a list, while
+		# type search only takes a single directory
 		my @dirs;
 
 		if defined $dir and $dir.IO.d {
-			@dirs = [$dir];
+			@dirs = [$dir.IO];
 		} elsif defined $dir {
 			fail "$dir does not exist, or is not a directory";
 		} else {
@@ -153,7 +156,7 @@ package P6doc::CMD {
 		}
 
 		if not $query.contains('.') {
-			my Perl6::Documentable @results = t-search($query, :topdirs(@dirs));
+			my Perl6::Documentable @results = type-search($query, :dir(@dirs.first));
 			show-t-search-results(@results);
 		} else {
 			my @squery = $query.split('.');
@@ -161,7 +164,7 @@ package P6doc::CMD {
 			if not @squery.elems == 2 {
 				fail 'Malformed input, example: Map.elems';
 			} else {
-				my Perl6::Documentable @results = t-search(@squery[0], :routine(@squery[1]), :topdirs(@dirs));
+				my Perl6::Documentable @results = type-search(@squery[0], :routine(@squery[1]), :dir(@dirs.first));
 				show-t-search-results(@results);
 			}
 		}
@@ -179,8 +182,7 @@ package P6doc::CMD {
 			@dirs = get-doc-locations();
 		}
 
-		my Perl6::Documentable @results = f-search($routine, :topdirs(@dirs));
+		my Perl6::Documentable @results = routine-search($routine, :topdirs(@dirs));
 		show-f-search-results(@results);
 	}
-
 }
