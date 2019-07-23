@@ -132,7 +132,7 @@ package P6doc::CMD {
             END
     }
 
-	proto MAIN(|) is export {
+	our proto MAIN(|) is export {
 		{*}
 	}
 
