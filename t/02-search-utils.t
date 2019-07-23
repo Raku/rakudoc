@@ -7,46 +7,20 @@ use P6doc::Index;
 
 use JSON::Fast;
 
-plan 5;
+###
+###
+###
 
-subtest 'check for index file', {
-	if not INDEX.IO.e {
-		ok build-index(INDEX), 'building index...';
-	} else {
-		skip 'index file already exists';
+plan 1;
+
+subtest 'finding test-doc folder', {
+	ok (get-doc-locations(:test(True)) >= 1);
+
+	# Check that every Path `get-doc-locations` returns
+	# is actually a directory
+	my Bool @directory-check;
+	for get-doc-locations(:test(True)) -> $p {
+		@directory-check.push: $p.d;
 	}
-}
-
-my %index-data = from-json slurp(INDEX);
-
-subtest 'search-paths', {
-	my $d = search-paths().join(' ').contains('/doc');
-	my $td = search-paths().join(' ').contains('/test-doc');
-	ok ($d or $td);
-}
-
-subtest 'module-names', {
-	my $expected;
-
-	$expected = ('Foo/Bar.pm', 'Foo/Bar.pm6', 'Foo/Bar.pod', 'Foo/Bar.pod6');
-	is module-names('Foo::Bar'), $expected;
-
-	$expected = ('Text/CSV.pm', 'Text/CSV.pm6', 'Text/CSV.pod', 'Text/CSV.pod6');
-	is module-names('Text::CSV'), $expected;
-}
-
-subtest 'locate-module', {
-	my Str $lm;
-
-	$lm = locate-module('Map');
-	ok $lm.contains('Map');
-
-	$lm = locate-module('Cool');
-	ok $lm.contains('Cool');
-}
-
-subtest 'disambiguate-f-search', {
-	skip 'sub needs to be rewritten', 2;
-	#isnt disambiguate-f-search('exit', %index-data), '';
-	#isnt disambiguate-f-search('done', %index-data), '';
+	ok [and] @directory-check;
 }

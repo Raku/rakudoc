@@ -7,13 +7,4 @@ use P6doc::Index;
 
 plan 1;
 
-subtest 'sub build_index', {
-	if INDEX.e {
-		ok unlink(INDEX), 'Cleaning index file...';
-	}
-
-	build-index(INDEX);
-
-	ok INDEX.e, 'index file exists';
-	nok INDEX.z, 'index file is not empty';
-}
+skip 'Index needs to get reintroduced according to the new \'next\' version', 1;
