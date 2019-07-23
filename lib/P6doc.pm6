@@ -1,5 +1,6 @@
 use P6doc::Utils;
 
+use Pod::Load;
 use Perl6::Documentable;
 use Perl6::Documentable::Processing;
 
@@ -211,22 +212,38 @@ sub compose-registry(
 	return $registry
 }
 
-#| Receive a list of pod files and process them, return a list of Perl6::Documentable objects
-sub process-pods(IO::Path @files) returns Array[Perl6::Documentable] {
-	...
+#| Receive a list of paths to pod files and process them, return a list of
+#| Perl6::Documentable objects
+sub process-type-pods(IO::Path @files) returns Array[Perl6::Documentable] is export {
+	my Perl6::Documentable @results;
+
+	for @files.list -> $f {
+		my $documentable = process-pod-source(
+			kind => "type",
+			pod => load($f)[0],
+			filename => $f.Str,
+		);
+		@results.push($documentable);
+	}
+
+	return @results;
 }
 
-#| Create a list of relevant files in a given directory (recursively, if necessary)
-sub type-list-files(Str $query, $dir) is export {
-	my @results;
+#| Search for relevant files in a given directory (recursively, if necessary),
+#| and return a list of the results.
+#| $query is the name of the type in the form `Str`, `IO::Spec::Unix` etc..
+#| This assumes that $dir is the base directory for the pod files, example: for
+#| the standard documentation folder 'doc', `$dir` should be `'doc'.IO.add('Type')`.
+sub type-list-files(Str $query, $dir) returns Array[IO::Path] is export {
+	my IO::Path @results;
 	my $searchname;
 
-	my $query-depth = 0;
+	# TODO: Depth not yet optimal
+	my $query-depth = 0..2;
 
 	my $finder = Path::Finder;
 
 	if $query.contains('::') {
-		# Add one to the number of elements to receive the correct depth
 		$query-depth = $query.split('::').elems + 1;
 		$searchname = $query.split('::').tail;
 
@@ -245,6 +262,8 @@ sub type-list-files(Str $query, $dir) is export {
 }
 
 #| Search for a single Routine/Method/Subroutine, e.g. `split`
+# TODO: type-search already profits from pre sieving, routine search does
+# not have any optimization yet!
 sub routine-search(
 	Str $routine,
 	:@topdirs = get-doc-locations() ) returns Array[Perl6::Documentable] is export
@@ -292,12 +311,12 @@ sub type-search(
 			# a given object.
 			for $rs.defs -> $def {
 				if $def.name eq $routine {
-					@filtered-results.push($def);
+					@routine-results.push($def);
 				}
 			}
 		}
 
-		return @filtered-results;
+		return @routine-results;
 	}
 
 	return @results
@@ -319,7 +338,8 @@ sub show-f-search-results(Perl6::Documentable @results) is export {
 	}
 }
 
-#|
+#| Print the search results. This renders the documentation if `@results == 1`
+#| Or lists names and associated types if `@results > 1`.
 sub show-t-search-results(Perl6::Documentable @results) is export {
 	if @results.elems == 1 {
 		say pod2text(@results.first.pod);
