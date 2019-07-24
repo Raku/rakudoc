@@ -199,8 +199,9 @@ sub list-installed() is export {
 #| Create a Perl6::Documentable::Registry for the given directory
 sub compose-registry(
     $topdir,
-    @dirs = ['Type'] ) returns Perl6::Documentable::Registry
-{
+    @dirs = ['Type'],
+	--> Perl6::Documentable
+) {
     my $registry = process-pod-collection(
         cache => False,
         verbose => False,
@@ -214,8 +215,11 @@ sub compose-registry(
 
 #| Receive a list of paths to pod files and process them, return a list of
 #| Perl6::Documentable objects
-sub process-type-pods(IO::Path @files) returns Array[Perl6::Documentable] is export {
-    my Perl6::Documentable @results;
+sub process-type-pods(
+	IO::Path @files,
+	--> Array[Perl6::Documentable]
+) is export {
+	my Perl6::Documentable @results;
 
     for @files.list -> $f {
         my $documentable = process-pod-source(
@@ -234,7 +238,11 @@ sub process-type-pods(IO::Path @files) returns Array[Perl6::Documentable] is exp
 #| $type-name is the name of the type in the form `Str`, `IO::Spec::Unix` etc..
 #| This assumes that $dir is the base directory for the pod files, example: for
 #| the standard documentation folder 'doc', `$dir` should be `'doc'.IO.add('Type')`.
-sub type-list-files(Str $type-name, $dir) returns Array[IO::Path] is export {
+sub type-list-files(
+	Str $type-name,
+	$dir,
+	--> Array[IO::Path]
+) is export {
     my IO::Path @results;
     my $search-name;
 
@@ -266,8 +274,9 @@ sub type-list-files(Str $type-name, $dir) returns Array[IO::Path] is export {
 # not have any optimization yet!
 sub routine-search(
     Str $routine,
-    :@topdirs = get-doc-locations() ) returns Array[Perl6::Documentable] is export
-{
+    :@topdirs = get-doc-locations(),
+	--> Array[Perl6::Documentable]
+) is export {
     my Perl6::Documentable @results;
 
     for @topdirs -> $td {
@@ -286,11 +295,12 @@ sub routine-search(
 #| `$dir` makes the same assumption as `type-list-files`.
 # TODO: might be cleaner to just give it a list of Perl6::Documentable objects
 sub type-search(
-    Str $type-name,
-    Str :$routine?,
-    IO::Path :$dir where *.d = get-doc-locations().first) returns Array[Perl6::Documentable] is export
-{
-    my Perl6::Documentable @results;
+	Str $type-name,
+	Str :$routine?,
+	IO::Path :$dir where *.d = get-doc-locations().first,
+	--> Array[Perl6::Documentable]
+)  is export {
+	my Perl6::Documentable @results;
 
     my IO::Path @files = type-list-files($type-name, $dir);
     @results = process-type-pods(@files);
