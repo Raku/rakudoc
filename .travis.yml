@@ -12,10 +12,8 @@ before_install:
   - export PATH=$PATH:~/.perl6/bin:/opt/rakudo-pkg/bin
   # https://github.com/ugexe/zef
   - git clone https://github.com/ugexe/zef.git && cd zef && perl6 -Ilib bin/zef install .
-  - cd ..
-  - wget -O perl6-documentable-1.1.2.tar.gz https://github.com/antoniogamiz/Perl6-Documentable/archive/v1.1.2.tar.gz
-  - tar -xvzf perl6-documentable-1.1.2.tar.gz
-  - zef install ./Perl6-Documentable-1.1.2
+  # Install module directly
+  - zef install https://github.com/antoniogamiz/Perl6-Documentable/archive/v1.1.2.tar.gz
 
 install:
   - cd ${TRAVIS_BUILD_DIR}
