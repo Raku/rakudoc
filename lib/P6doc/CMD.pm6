@@ -111,15 +111,11 @@ package P6doc::CMD {
         say q:to/END/;
             p6doc is a tool for reading perl6 documentation.
 
-            Usage:
+            Options:
 
-                p6doc <command> [argument]
-
-            Commands:
-
-                -r          search by routine name
-                -d          specify a standard doc directory
-                env         show information on p6doc's environment
+                [-d | --directory]      specify a doc directory
+                [-h | --help]           print usage information
+                [-r | --routine]        search by routine name
 
             Examples:
 
@@ -129,6 +125,10 @@ package P6doc::CMD {
                 p6doc -d=./large-doc Map
                 p6doc -d=./large-doc IO::Path
                 p6doc -d=./large-doc -r=split
+
+            Note:
+
+                Usage of -r is not recommended right now!
             END
     }
 
