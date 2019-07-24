@@ -210,7 +210,7 @@ sub compose-registry(
     );
     $registry.compose;
 
-    return $registry
+    $registry
 }
 
 #| Receive a list of paths to pod files and process them, return a list of
@@ -230,7 +230,7 @@ sub process-type-pods(
         @results.push($documentable);
     }
 
-    return @results;
+    @results
 }
 
 #| Search for relevant files in a given directory (recursively, if necessary),
@@ -266,7 +266,7 @@ sub type-list-files(
         @results.push($file);
     }
 
-    return @results;
+    @results
 }
 
 #| Search for a single Routine/Method/Subroutine, e.g. `split`
@@ -288,7 +288,7 @@ sub routine-search(
         }
     }
 
-    return @results
+    @results
 }
 
 #| Lookup documentation in association with a type, e.g. `Map`, `Map.new`.
@@ -329,7 +329,7 @@ sub type-search(
         return @routine-results;
     }
 
-    return @results
+    @results
 }
 
 #|
