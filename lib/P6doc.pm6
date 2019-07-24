@@ -291,9 +291,9 @@ sub routine-search(
     @results
 }
 
+# TODO: might be cleaner to just give it a list of Perl6::Documentable objects
 #| Lookup documentation in association with a type, e.g. `Map`, `Map.new`.
 #| `$dir` makes the same assumption as `type-list-files`.
-# TODO: might be cleaner to just give it a list of Perl6::Documentable objects
 sub type-search(
 	Str $type-name,
 	Str :$routine?,
