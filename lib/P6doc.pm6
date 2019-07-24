@@ -332,7 +332,8 @@ sub type-search(
     @results
 }
 
-#|
+#| Print the search results for a routine search. This renders the documentation
+#| if `@results == 1` or lists names and associated types if `@results > 1`.
 sub show-r-search-results(Perl6::Documentable @results) is export {
     if @results.elems == 1 {
         say pod2text(@results.first.pod);
@@ -349,7 +350,7 @@ sub show-r-search-results(Perl6::Documentable @results) is export {
 }
 
 #| Print the search results. This renders the documentation if `@results == 1`
-#| Or lists names and associated types if `@results > 1`.
+#| or lists names and associated types if `@results > 1`.
 sub show-t-search-results(Perl6::Documentable @results) is export {
     if @results.elems == 1 {
         say pod2text(@results.first.pod);
