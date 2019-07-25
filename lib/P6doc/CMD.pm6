@@ -1,11 +1,15 @@
 use P6doc;
 use P6doc::Utils;
 use P6doc::Index;
+
+use Perl6::Documentable;
+
 use JSON::Fast;
 
 package P6doc::CMD {
-	my $PROGRAM-NAME = "p6doc";
+    my $PROGRAM-NAME = "p6doc";
 
+    #`[
     sub USAGE() {
         say q:to/END/;
             p6doc is a tool for reading perl6 documentation.
@@ -27,110 +31,158 @@ package P6doc::CMD {
             END
     }
 
-	proto MAIN(|) is export {
-		{*}
-	}
+    multi sub MAIN($docee, Bool :$n) {
+        # On windows, if input is not surrounded by '', it will be malformed
+        # Example: `p6doc X::IO` will pass `X:/:IO` to MAIN.
+        # This should be checked for and corrected.
 
-	multi MAIN(Bool :h(:$help)?) {
-		USAGE();
+        return MAIN($docee, :f, :$n) if defined $docee.index('.');
 
-		exit;
-	}
+        say get-docs(locate-module($docee).IO, :package($docee));
+    }
 
-	multi sub MAIN('list') {
-		if INDEX.IO.e {
-			my %data = from-json slurp(INDEX);
+    multi sub MAIN($docee, Bool :$f!, Bool :$n) {
+        my ($package, $method) = $docee.split('.');
+        if ! $method {
 
-			for %data.keys.sort -> $name {
-				say $name
-				#    my $newdoc = %data{$docee}[0][0] ~ "." ~ %data{$docee}[0][1];
-				#    return MAIN($newdoc, :f);
-			}
-		} else {
-			say "First run   $*PROGRAM-NAME build    to create the index";
-			exit;
-		}
-	}
+            if not INDEX.IO.e {
+                say "building index on first run. Please wait...";
+                build-index(INDEX);
+            }
 
-	multi sub MAIN('lookup', $key) {
-		if INDEX.IO.e {
-			my %data = from-json slurp(INDEX);
-			die "not found" unless %data{$key};
-			say %data{$key}.split(" ").[0];
-		} else {
-			say "First run   $*PROGRAM-NAME build    to create the index";
-			exit;
-		}
-	}
+            my %data = from-json slurp(INDEX);
 
-	multi sub MAIN($docee, Bool :$n) {
-		# On windows, if input is not surrounded by '', it will be malformed
-		# Example: `p6doc X::IO` will pass `X:/:IO` to MAIN.
-		# This should be checked for and corrected.
+            my $final-docee = disambiguate-f-search($docee, %data);
 
-		return MAIN($docee, :f, :$n) if defined $docee.index('.');
+            # NOTE: This is a temporary fix, since disambiguate-f-search
+            #       does not properly handle independent routines right now.
+            if $final-docee eq '' {
+                $final-docee = ('independent-routines', $docee).join('.');
+            }
 
-		say get-docs(locate-module($docee).IO, :package($docee));
-	}
+            ($package, $method) = $final-docee.split('.');
 
-	multi sub MAIN($docee, Bool :$f!, Bool :$n) {
-		my ($package, $method) = $docee.split('.');
-		if ! $method {
+            my $m = locate-module($package);
 
-			if not INDEX.IO.e {
-				say "building index on first run. Please wait...";
-				build-index(INDEX);
-			}
+            say get-docs($m.IO, :section($method), :$package);
+        } else {
+            my $m = locate-module($package);
 
-			my %data = from-json slurp(INDEX);
+            say get-docs($m.IO, :section($method), :$package);
+        }
+    }
 
-			my $final-docee = disambiguate-f-search($docee, %data);
+    multi sub MAIN(Bool :$l!) {
+        my @paths = search-paths() X~ <Type/ Language/>;
+        my @modules;
+        for @paths -> $dir {
+            for dir($dir).sort -> $file {
+                @modules.push: $file.basename.subst( '.'~$file.extension,'') if $file.IO.f;
+            }
+        }
+        @modules.append: list-installed().map(*.name);
+        .say for @modules.unique.sort;
+    }
 
-			# NOTE: This is a temporary fix, since disambiguate-f-search
-			#       does not properly handle independent routines right now.
-			if $final-docee eq '' {
-				$final-docee = ('independent-routines', $docee).join('.');
-			}
+    multi sub MAIN(Str $file where $file.IO.e, Bool :$n) {
+        say get-docs($file.IO);
+    }
 
-			($package, $method) = $final-docee.split('.');
+    # index related
+    multi sub MAIN('env') {
+        my Str $index-info = "Index file: {INDEX}";
+        my Str $doc-info = "Doc folder: {get-doc-locations}";
 
-			my $m = locate-module($package);
+        say $index-info;
+        say $doc-info;
+    }
 
-			say get-docs($m.IO, :section($method), :$package);
-		} else {
-			my $m = locate-module($package);
+    multi sub MAIN('build') {
+        say "Building index file...";
+        build-index(INDEX);
+    }
+    ]
 
-			say get-docs($m.IO, :section($method), :$package);
-		}
-	}
+    ###
+    ###
+    ###
 
-	multi sub MAIN(Bool :$l!) {
-		my @paths = search-paths() X~ <Type/ Language/>;
-		my @modules;
-		for @paths -> $dir {
-			for dir($dir).sort -> $file {
-				@modules.push: $file.basename.subst( '.'~$file.extension,'') if $file.IO.f;
-			}
-		}
-		@modules.append: list-installed().map(*.name);
-		.say for @modules.unique.sort;
-	}
+    sub USAGE() {
+        say q:to/END/;
+            p6doc is a tool for reading perl6 documentation.
 
-	multi sub MAIN(Str $file where $file.IO.e, Bool :$n) {
-		say get-docs($file.IO);
-	}
+            Options:
 
-	# index related
-	multi sub MAIN('env') {
-		my Str $index-info = "Index file: {INDEX}";
-		my Str $doc-info = "Doc folder: {get-doc-locations}";
+                [-d | --directory]      specify a doc directory
+                [-h | --help]           print usage information
+                [-r | --routine]        search by routine name
 
-		say $index-info;
-		say $doc-info;
-	}
+            Examples:
 
-	multi sub MAIN('build') {
-		say "Building index file...";
-		build-index(INDEX);
-	}
+                p6doc Map
+                p6doc Map.new
+                p6doc -r=abs
+                p6doc -d=./large-doc Map
+                p6doc -d=./large-doc IO::Path
+                p6doc -d=./large-doc -r=split
+
+            Note:
+
+                Usage of -r is not recommended right now!
+            END
+    }
+
+    our proto MAIN(|) is export {
+        {*}
+    }
+
+    multi MAIN(Bool :h(:$help)?) {
+        USAGE();
+
+        exit;
+    }
+
+    multi MAIN(Str $query, Str :d($dir)) {
+        # TODO: This is currently a list, while
+        # type search only takes a single directory
+        my @dirs;
+
+        if defined $dir and $dir.IO.d {
+            @dirs = [$dir.IO];
+        } elsif defined $dir {
+            fail "$dir does not exist, or is not a directory";
+        } else {
+            @dirs = get-doc-locations();
+        }
+
+        if not $query.contains('.') {
+            my Perl6::Documentable @results = type-search($query, :dir(@dirs.first));
+            show-t-search-results(@results);
+        } else {
+            my @squery = $query.split('.');
+
+            if not @squery.elems == 2 {
+                fail 'Malformed input, example: Map.elems';
+            } else {
+                my Perl6::Documentable @results = type-search(@squery[0], :routine(@squery[1]), :dir(@dirs.first));
+                show-t-search-results(@results);
+            }
+        }
+    }
+
+    multi MAIN(Str :r($routine), Str :d($dir)) {
+        my @dirs;
+
+
+        if defined $dir and $dir.IO.d {
+            @dirs = [$dir];
+        } elsif defined $dir {
+            fail "$dir does not exist, or is not a directory";
+        } else {
+            @dirs = get-doc-locations();
+        }
+
+        my Perl6::Documentable @results = routine-search($routine, :topdirs(@dirs));
+        show-r-search-results(@results);
+    }
 }

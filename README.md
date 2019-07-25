@@ -10,29 +10,33 @@ The `p6doc` command line tool, improved!
 
 ## Installation
 
-For now, only testing from inside the repository is recommended.
-
 `git clone --recurse-submodules https://github.com/noisegul/perl6-p6doc`
+
+To avoid problems, manual install of `Perl6::Documentable` 1.1.2 is required.
 
 ## Usage
 
 *Note*: Right now things are moving and changing, so please refer to `p6doc -h`:
 
 ```
-p6doc is a tool for reading perl6 documentation.
+            p6doc is a tool for reading perl6 documentation.
 
-Usage:
+            Options:
 
-p6doc <command> [argument]
+                [-d | --directory]      specify a doc directory
+                [-h | --help]           print usage information
+                [-r | --routine]        search by routine name
 
-Commands:
+            Examples:
 
-build       build an index for p6doc -f
-list        list the index keys
-env         show information on p6doc's environment
+                p6doc Map
+                p6doc Map.new
+                p6doc -r=abs
+                p6doc -d=./large-doc Map
+                p6doc -d=./large-doc IO::Path
+                p6doc -d=./large-doc -r=split
 
-Examples:
+            Note:
 
-p6doc Map
-p6doc Map.new
+                Usage of -r is not recommended right now!
 ```
