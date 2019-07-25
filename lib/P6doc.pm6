@@ -200,7 +200,7 @@ sub list-installed() is export {
 sub compose-registry(
     $topdir,
     @dirs = ['Type'],
-	--> Perl6::Documentable
+    --> Perl6::Documentable
 ) {
     my $registry = process-pod-collection(
         cache => False,
@@ -216,10 +216,10 @@ sub compose-registry(
 #| Receive a list of paths to pod files and process them, return a list of
 #| Perl6::Documentable objects
 sub process-type-pods(
-	IO::Path @files,
-	--> Array[Perl6::Documentable]
+    IO::Path @files,
+    --> Array[Perl6::Documentable]
 ) is export {
-	my Perl6::Documentable @results;
+    my Perl6::Documentable @results;
 
     for @files.list -> $f {
         my $documentable = process-pod-source(
@@ -239,9 +239,9 @@ sub process-type-pods(
 #| This assumes that $dir is the base directory for the pod files, example: for
 #| the standard documentation folder 'doc', `$dir` should be `'doc'.IO.add('Type')`.
 sub type-list-files(
-	Str $type-name,
-	$dir,
-	--> Array[IO::Path]
+    Str $type-name,
+    $dir,
+    --> Array[IO::Path]
 ) is export {
     my IO::Path @results;
     my $search-name;
@@ -275,7 +275,7 @@ sub type-list-files(
 sub routine-search(
     Str $routine,
     :@topdirs = get-doc-locations(),
-	--> Array[Perl6::Documentable]
+    --> Array[Perl6::Documentable]
 ) is export {
     my Perl6::Documentable @results;
 
@@ -295,12 +295,12 @@ sub routine-search(
 #| Lookup documentation in association with a type, e.g. `Map`, `Map.new`.
 #| `$dir` makes the same assumption as `type-list-files`.
 sub type-search(
-	Str $type-name,
-	Str :$routine?,
-	IO::Path :$dir where *.d = get-doc-locations().first,
-	--> Array[Perl6::Documentable]
+    Str $type-name,
+    Str :$routine?,
+    IO::Path :$dir where *.d = get-doc-locations().first,
+    --> Array[Perl6::Documentable]
 )  is export {
-	my Perl6::Documentable @results;
+    my Perl6::Documentable @results;
 
     my IO::Path @files = type-list-files($type-name, $dir);
     @results = process-type-pods(@files);

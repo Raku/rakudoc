@@ -19,16 +19,16 @@ plan 7;
 # and test them instead.
 BEGIN sub MAIN(|_) { };
 {
-	use P6doc::CMD;
+    use P6doc::CMD;
 
-	ok P6doc::CMD::MAIN('');
-	ok P6doc::CMD::MAIN('-h');
-	ok P6doc::CMD::MAIN('Map');
-	ok P6doc::CMD::MAIN('Map.new');
-	ok P6doc::CMD::MAIN('X::IO');
+    ok P6doc::CMD::MAIN('');
+    ok P6doc::CMD::MAIN('-h');
+    ok P6doc::CMD::MAIN('Map');
+    ok P6doc::CMD::MAIN('Map.new');
+    ok P6doc::CMD::MAIN('X::IO');
 
-	skip 'Skipping -r, the backend for it is not done', 1;
-	ok P6doc::CMD::MAIN('-r=new');
+    skip 'Skipping -r, the backend for it is not done', 1;
+    ok P6doc::CMD::MAIN('-r=new');
 }
 
 # Show test duration
