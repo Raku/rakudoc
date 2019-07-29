@@ -233,6 +233,21 @@ sub process-type-pod-files(
     @results
 }
 
+#| Translate a Type name in form `Map`, `IO::Spec::Unix` into a pod file path
+#| The resulting path is relative to the doc folder.
+sub type-path-from-name(
+    Str $type-name,
+    --> IO::Path
+) is export {
+    if not $type-name.contains('::') {
+        return ($type-name.IO ~ '.pod6').IO
+    } else {
+        # Replace `::` with the directory separator specific to the
+        # platform
+        return ($type-name.subst('::', $*SPEC.dir-sep) ~ '.pod6').IO;
+    }
+}
+
 #| Search for relevant files in a given directory (recursively, if necessary),
 #| and return a list of the results.
 #| $type-name is the name of the type in the form `Map`, `IO::Spec::Unix` etc..
