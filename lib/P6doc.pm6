@@ -215,7 +215,7 @@ sub compose-registry(
 
 #| Receive a list of paths to pod files and process them, return a list of
 #| Perl6::Documentable objects
-sub process-type-pods(
+sub process-type-pod-files(
     IO::Path @files,
     --> Array[Perl6::Documentable]
 ) is export {
@@ -235,10 +235,10 @@ sub process-type-pods(
 
 #| Search for relevant files in a given directory (recursively, if necessary),
 #| and return a list of the results.
-#| $type-name is the name of the type in the form `Str`, `IO::Spec::Unix` etc..
+#| $type-name is the name of the type in the form `Map`, `IO::Spec::Unix` etc..
 #| This assumes that $dir is the base directory for the pod files, example: for
 #| the standard documentation folder 'doc', `$dir` should be `'doc'.IO.add('Type')`.
-sub type-list-files(
+sub type-find-files(
     Str $type-name,
     $dir,
     --> Array[IO::Path]
@@ -246,20 +246,18 @@ sub type-list-files(
     my IO::Path @results;
     my $search-name;
 
-    # TODO: Depth not yet optimal
-    my $query-depth = 0..2;
-
     my $finder = Path::Finder;
 
     if $type-name.contains('::') {
-        $query-depth = $type-name.split('::').elems + 1;
+        # The :: already tell us the folder depth, no reason to look anywhere
+        # else.
+        $finder = $finder.depth($type-name.split('::').elems);
         $search-name = $type-name.split('::').tail;
-
     } else {
+        $finder = $finder.depth(1);
         $search-name = $type-name;
     }
 
-    $finder = $finder.depth($query-depth);
     $finder = $finder.name("{$search-name}.pod6");
 
     for $finder.in($dir, :file) -> $file {
@@ -269,12 +267,61 @@ sub type-list-files(
     @results
 }
 
+#| Lookup documentation in association with a type, e.g. `Map`, `Map.new`.
+sub type-search(
+    Str $type-name,
+    Perl6::Documentable @documentables,
+    Str :$routine?,
+    --> Array[Perl6::Documentable]
+) is export {
+    my Perl6::Documentable @results;
+
+    # First, remove elements where name does not match
+    @results = @documentables.grep: *.name eq $type-name;
+
+    # If a routine to search for has been provided, we now look for it inside
+    # the found types, and return those results instead
+    if defined $routine {
+        my Perl6::Documentable @routine-results;
+
+        for @results -> $rs {
+            # Loop definitions, look for searched routine
+            # `.defs` contains a list of Perl6::Documentable defined inside a
+            # given object
+            for $rs.defs -> $def {
+                if $def.name eq $routine {
+                    @routine-results.push($def);
+                }
+            }
+        }
+        return @routine-results;
+    }
+
+    # If no $routine was provided, only looking for the Type name was enough
+    @results
+}
+
+#| Print the search results. This renders the documentation if `@results == 1`
+#| or lists names and associated types if `@results > 1`.
+sub show-t-search-results(Perl6::Documentable @results) is export {
+    if @results.elems == 1 {
+        say pod2text(@results.first.pod);
+    } elsif @results.elems < 1 {
+        say "No matches";
+    } else {
+        say 'Multiple matches:';
+        for @results -> $r {
+            say "    {$r.subkinds} {$r.name}";
+        }
+    }
+}
+
 #| Search for a single Routine/Method/Subroutine, e.g. `split`
 # TODO: type-search already profits from pre sieving, routine search does
 # not have any optimization yet!
 sub routine-search(
     Str $routine,
-    :@topdirs = get-doc-locations(),
+    :@topdirs = get-doc-locations()
     --> Array[Perl6::Documentable]
 ) is export {
     my Perl6::Documentable @results;
@@ -286,47 +333,6 @@ sub routine-search(
         for $registry.lookup($routine, :by<name>).list -> $r {
             @results.append: $r;
         }
-    }
-
-    @results
-}
-
-# TODO: might be cleaner to just give it a list of Perl6::Documentable objects
-#| Lookup documentation in association with a type, e.g. `Map`, `Map.new`.
-#| `$dir` makes the same assumption as `type-list-files`.
-sub type-search(
-    Str $type-name,
-    Str :$routine?,
-    IO::Path :$dir where *.d = get-doc-locations().first,
-    --> Array[Perl6::Documentable]
-)  is export {
-    my Perl6::Documentable @results;
-
-    my IO::Path @files = type-list-files($type-name, $dir);
-    @results = process-type-pods(@files);
-
-    # Old, filter for class
-    #@results = @results.grep: *.subkinds.contains('class');
-    # New, filter only by name, since we already pre sieve with type-list-files
-    @results = @results.grep: *.name eq $type-name;
-
-    # If we provided a routine to search for, we now look for it inside the found classes
-    # and return an array of those results instead
-    if defined $routine {
-        my Perl6::Documentable @routine-results;
-
-        for @results -> $rs {
-            # Loop definitions, look for searched routine
-            # `.defs` contains a list of Perl6::Documentables defined inside
-            # a given object.
-            for $rs.defs -> $def {
-                if $def.name eq $routine {
-                    @routine-results.push($def);
-                }
-            }
-        }
-
-        return @routine-results;
     }
 
     @results
@@ -345,21 +351,6 @@ sub show-r-search-results(Perl6::Documentable @results) is export {
             # `.origin.name` gives us the correct name of the pod our
             # documentation is defined in originally
             say "    {$r.origin.name} {$r.subkinds} {$r.name}";
-        }
-    }
-}
-
-#| Print the search results. This renders the documentation if `@results == 1`
-#| or lists names and associated types if `@results > 1`.
-sub show-t-search-results(Perl6::Documentable @results) is export {
-    if @results.elems == 1 {
-        say pod2text(@results.first.pod);
-    } elsif @results.elems < 1 {
-        say "No matches";
-    } else {
-        say 'Multiple matches:';
-        for @results -> $r {
-            say "    {$r.subkinds} {$r.name}";
         }
     }
 }

@@ -45,29 +45,55 @@ package P6doc::CMD {
     }
 
     multi MAIN(Str $query, Str :d($dir)) {
-        # TODO: This is currently a list, while
-        # type search only takes a single directory
-        my @dirs;
+        my @doc-dirs;
 
         if defined $dir and $dir.IO.d {
-            @dirs = [$dir.IO];
+            # If directory is provided via `-d`, only look there
+            @doc-dirs = [$dir.IO];
         } elsif defined $dir {
             fail "$dir does not exist, or is not a directory";
         } else {
-            @dirs = get-doc-locations();
+            # If no directory is provided, search in a given set of standard
+            # paths
+            @doc-dirs = get-doc-locations();
         }
 
         if not $query.contains('.') {
-            my Perl6::Documentable @results = type-search($query, :dir(@dirs.first));
-            show-t-search-results(@results);
+            my IO::Path @pod-paths;
+            my Perl6::Documentable @documentables;
+            my Perl6::Documentable @search-results;
+
+            for @doc-dirs -> $dir {
+                @pod-paths.append: type-find-files($query, $dir);
+            }
+
+            @documentables = process-type-pod-files(@pod-paths);
+            @search-results = type-search($query, @documentables);
+
+            show-t-search-results(@search-results);
+
         } else {
+            # e.g. split `Map.new` into `Map` and `new`
             my @squery = $query.split('.');
 
             if not @squery.elems == 2 {
                 fail 'Malformed input, example: Map.elems';
             } else {
-                my Perl6::Documentable @results = type-search(@squery[0], :routine(@squery[1]), :dir(@dirs.first));
-                show-t-search-results(@results);
+                my IO::Path @pod-paths;
+                my Perl6::Documentable @documentables;
+                my Perl6::Documentable @search-results;
+
+                for @doc-dirs -> $dir {
+                    @pod-paths.append: type-find-files(@squery[0], $dir);
+                }
+
+                @documentables = process-type-pod-files(@pod-paths);
+                @search-results = type-search(@squery[0],
+                                              :routine(@squery[1]),
+                                              @documentables);
+
+                show-t-search-results(@search-results);
+
             }
         }
     }
