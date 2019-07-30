@@ -12,8 +12,6 @@ The `p6doc` command line tool, improved!
 
 `git clone --recurse-submodules https://github.com/noisegul/perl6-p6doc`
 
-To avoid problems, manual install of `Perl6::Documentable` 1.1.2 is required.
-
 ## Usage
 
 *Note*: Right now things are moving and changing, so please refer to `p6doc -h`:
