@@ -8,7 +8,7 @@ use P6doc::Index;
 ###
 ###
 
-plan 7;
+plan 5;
 
 # The following is a way to test `MAIN`s from P6doc::CMD directly
 # without triggering usage. It appears there is no straightforward
@@ -26,9 +26,6 @@ BEGIN sub MAIN(|_) { };
     ok P6doc::CMD::MAIN('Map');
     ok P6doc::CMD::MAIN('Map.new');
     ok P6doc::CMD::MAIN('X::IO');
-
-    skip 'Skipping -r, the backend for it is not done', 1;
-    ok P6doc::CMD::MAIN('-r=new');
 }
 
 # Show test duration

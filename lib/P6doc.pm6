@@ -1,8 +1,9 @@
 use P6doc::Utils;
 
 use Pod::Load;
-use Perl6::Documentable;
-use Perl6::Documentable::Processing;
+use Perl6::TypeGraph;
+use Perl6::Documentable::File;
+use Perl6::Documentable::Registry;
 
 use JSON::Fast;
 use Pod::To::Text;
@@ -196,25 +197,14 @@ sub list-installed() is export {
 ### NEXT
 ###
 
-#| Create a Perl6::Documentable::Registry for the given directory
-sub compose-registry(
-    $topdir,
-    @dirs = ['Type'],
-    --> Perl6::Documentable
-) {
-    my $registry = process-pod-collection(
-        cache => False,
-        verbose => False,
-        topdir => $topdir,
-        dirs => @dirs
-    );
-    $registry.compose;
+# NOTE: It appears that `Perl6::Documentable` can be used instead of
+# the more specific `Perl6::Documentable::File`. Noting this here in case
+# this circumstance changes in the future.
+# The following uses `Perl6::Documentable` to annotate any Documentable
+# objects.
 
-    $registry
-}
-
-#| Receive a list of paths to pod files and process them, return a list of
-#| Perl6::Documentable objects
+#| Receive a list of paths to pod files and process them, return an array of
+#| processed Perl6::Documentable objects
 sub process-type-pod-files(
     IO::Path @files,
     --> Array[Perl6::Documentable]
@@ -222,18 +212,23 @@ sub process-type-pod-files(
     my Perl6::Documentable @results;
 
     for @files.list -> $f {
-        my $documentable = process-pod-source(
-            kind => "type",
-            pod => load($f)[0],
-            filename => $f.Str,
+        my $documentable = Perl6::Documentable::File.new(
+            dir => "Type",
+            filename => $f.basename.Str,
+            tg => Perl6::TypeGraph.new-from-file,
+            # Be aware that Pod::Load's `load` returns an array,
+            # because of that we take the first element
+            pod => load($f).first,
         );
+        $documentable.process();
+
         @results.push($documentable);
     }
 
     @results
 }
 
-#| Translate a Type name in form `Map`, `IO::Spec::Unix` into a pod file path
+#| Translate a Type name in form `Map`, `IO::Spec::Unix` into a file path.
 #| The resulting path is relative to the doc folder.
 sub type-path-from-name(
     Str $type-name,
@@ -253,7 +248,7 @@ sub type-path-from-name(
 #| $type-name is the name of the type in the form `Map`, `IO::Spec::Unix` etc..
 #| This assumes that $dir is the base directory for the pod files, example: for
 #| the standard documentation folder 'doc', `$dir` should be `'doc'.IO.add('Type')`.
-sub type-find-files(
+sub find-type-files(
     Str $type-name,
     $dir,
     --> Array[IO::Path]
@@ -316,6 +311,42 @@ sub type-search(
     @results
 }
 
+#| Search for all `.pod6` files in a given directory (and subdirectories)
+sub find-pod-files(
+    $dir,
+    --> Array[IO::Path]
+) is export {
+    my IO::Path @results;
+
+    my $finder = Path::Finder;
+
+    $finder = $finder.ext('pod6');
+
+    for $finder.in($dir, :file) -> $file {
+        @results.push($file);
+    }
+
+    @results
+}
+
+#| Search for a single Routine/Method/Subroutine, e.g. `split`
+sub routine-search(
+    Str $routine,
+    :@topdirs = get-doc-locations()
+    --> Array[Perl6::Documentable]
+) is export {
+    my Perl6::Documentable @results;
+
+    @results
+}
+
+#|
+sub create-routine-index(
+    IO::Path $topdir
+) is export {
+    ...
+}
+
 #| Print the search results. This renders the documentation if `@results == 1`
 #| or lists names and associated types if `@results > 1`.
 sub show-t-search-results(Perl6::Documentable @results) is export {
@@ -329,28 +360,6 @@ sub show-t-search-results(Perl6::Documentable @results) is export {
             say "    {$r.subkinds} {$r.name}";
         }
     }
-}
-
-#| Search for a single Routine/Method/Subroutine, e.g. `split`
-# TODO: type-search already profits from pre sieving, routine search does
-# not have any optimization yet!
-sub routine-search(
-    Str $routine,
-    :@topdirs = get-doc-locations()
-    --> Array[Perl6::Documentable]
-) is export {
-    my Perl6::Documentable @results;
-
-    for @topdirs -> $td {
-        my $registry = compose-registry($td);
-
-        # The result from `.lookup` is containerized, thus we use `.list`
-        for $registry.lookup($routine, :by<name>).list -> $r {
-            @results.append: $r;
-        }
-    }
-
-    @results
 }
 
 #| Print the search results for a routine search. This renders the documentation

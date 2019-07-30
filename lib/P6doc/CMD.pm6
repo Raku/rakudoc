@@ -64,7 +64,7 @@ package P6doc::CMD {
             my Perl6::Documentable @search-results;
 
             for @doc-dirs -> $dir {
-                @pod-paths.append: type-find-files($query, $dir);
+                @pod-paths.append: find-type-files($query, $dir);
             }
 
             @documentables = process-type-pod-files(@pod-paths);
@@ -84,7 +84,7 @@ package P6doc::CMD {
                 my Perl6::Documentable @search-results;
 
                 for @doc-dirs -> $dir {
-                    @pod-paths.append: type-find-files(@squery[0], $dir);
+                    @pod-paths.append: find-type-files(@squery[0], $dir);
                 }
 
                 @documentables = process-type-pod-files(@pod-paths);
