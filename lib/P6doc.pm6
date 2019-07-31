@@ -2,6 +2,7 @@ use P6doc::Utils;
 
 use Pod::Load;
 use Perl6::TypeGraph;
+use Perl6::Documentable;
 use Perl6::Documentable::File;
 use Perl6::Documentable::Registry;
 
@@ -268,7 +269,17 @@ sub find-type-files(
         $search-name = $type-name;
     }
 
-    $finder = $finder.name("{$search-name}.pod6");
+    # NOTE: There is currently an inconsistency when it comes to independent routines.
+    # In Perl6::Documentable, the `name` attribute for the Documentable object containing
+    # a given routine will only be `routines`, while the actual filename for the `.pod6` file for
+    # independent routines in the Perl 6 documentation is `independent-routines.pod6`.
+    #
+    # For now, this is treated as an edge case here.
+    if $search-name eq 'routines' {
+        $finder = $finder.name("independent-routines.pod6");
+    } else {
+        $finder = $finder.name("{$search-name}.pod6");
+    }
 
     for $finder.in($dir, :file) -> $file {
         @results.push($file);
@@ -329,22 +340,54 @@ sub find-pod-files(
     @results
 }
 
-#| Search for a single Routine/Method/Subroutine, e.g. `split`
-sub routine-search(
-    Str $routine,
-    :@topdirs = get-doc-locations()
-    --> Array[Perl6::Documentable]
+#| Create a routine index for Perl 6 standard documentation.
+#| $topdir should be a default topdirectory with the subdirectory
+#| 'Type' inside.
+#| The resulting index has the routine names as keys, each key harbors
+#| an array containing the Types the routine is associated with
+sub create-routine-index(
+    IO::Path $topdir,
+    --> Hash
 ) is export {
-    my Perl6::Documentable @results;
+    my %routine-index;
 
-    @results
+    my $registry = Perl6::Documentable::Registry.new(
+        # `Perl6::Documentable::Registry`'s $topdir attribute takes a string instead
+        # of an `IO::Path` currently.
+        topdir => $topdir.Str,
+        dirs => ['Type'],
+        verbose => False,
+        use-cache => False,
+    );
+    $registry.compose;
+
+    # Looping the result of `lookup`, the key only contains numbering.
+    # We only need the values
+    for $registry.lookup(Kind::Routine.gist, :by<kind>).kv -> $k, $v {
+        #say "{$k} {$v.name} in {$v.origin.name}";
+        %routine-index.push: ($v.name => $v.origin.name);
+    }
+
+    %routine-index
 }
 
-#|
-sub create-routine-index(
-    IO::Path $topdir
+#| Create a routine index from a given documentation directory $topdir and write
+#| it as a json file to the given $file-location
+sub write-routine-index-file(
+    IO::Path $file-location,
+    IO::Path $topdir,
 ) is export {
-    ...
+    spurt($file-location, to-json(create-routine-index($topdir)))
+}
+
+#| Search for a single Routine/Method/Subroutine, e.g. `split`
+sub routine-search(
+    Str $routine-name,
+    IO::Path $routine-index-file
+) is export {
+    my %routine-index = from-json(slurp($routine-index-file));
+
+    return %routine-index{$routine-name}
 }
 
 #| Print the search results. This renders the documentation if `@results == 1`

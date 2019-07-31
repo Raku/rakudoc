@@ -14,7 +14,8 @@ The `p6doc` command line tool, improved!
 
 ## Usage
 
-*Note*: Right now things are moving and changing, so please refer to `p6doc -h`:
+*Note*: Things are moving and changing, so please refer to `p6doc -h`:
+
 
 ```
             p6doc is a tool for reading perl6 documentation.
@@ -23,18 +24,19 @@ The `p6doc` command line tool, improved!
 
                 [-d | --directory]      specify a doc directory
                 [-h | --help]           print usage information
-                [-r | --routine]        search by routine name
+                [-r | --routine]        search by routine name, currently requires `-d`
+                [-b | --build]          build a routine index, currently requires `-d`
 
             Examples:
 
                 p6doc Map
                 p6doc Map.new
                 p6doc -r=abs
-                p6doc -d=./large-doc Map
-                p6doc -d=./large-doc IO::Path
+                p6doc -d=./large-doc/Type Map
+                p6doc -d=./large-doc/Type IO::Path
                 p6doc -d=./large-doc -r=split
 
             Note:
 
-                Usage of -r is not recommended right now!
+                Right now it is only recommended to manually specify a doc directory
 ```

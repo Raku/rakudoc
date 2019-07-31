@@ -17,20 +17,21 @@ package P6doc::CMD {
 
                 [-d | --directory]      specify a doc directory
                 [-h | --help]           print usage information
-                [-r | --routine]        search by routine name
+                [-r | --routine]        search by routine name, currently requires `-d`
+                [-b | --build]          build a routine index, currently requires `-d`
 
             Examples:
 
                 p6doc Map
                 p6doc Map.new
                 p6doc -r=abs
-                p6doc -d=./large-doc Map
-                p6doc -d=./large-doc IO::Path
+                p6doc -d=./large-doc/Type Map
+                p6doc -d=./large-doc/Type IO::Path
                 p6doc -d=./large-doc -r=split
 
             Note:
 
-                Usage of -r is not recommended right now!
+                Right now it is only recommended to manually specify a doc directory
             END
     }
 
@@ -99,18 +100,22 @@ package P6doc::CMD {
     }
 
     multi MAIN(Str :r($routine), Str :d($dir)) {
-        my @dirs;
-
-
-        if defined $dir and $dir.IO.d {
-            @dirs = [$dir];
-        } elsif defined $dir {
-            fail "$dir does not exist, or is not a directory";
+        if INDEX.e && not INDEX.z {
+            say "";
+            say "$routine in:";
+            say "";
+            for routine-search($routine, INDEX).list -> $type-name {
+                say $type-name;
+            }
         } else {
-            @dirs = get-doc-locations();
+            say "No index file found, building index...";
+            write-routine-index-file(INDEX, $dir);
         }
+    }
 
-        my Perl6::Documentable @results = routine-search($routine, :topdirs(@dirs));
-        show-r-search-results(@results);
+    multi MAIN(Bool :b($build), Str :d($dir)) {
+        say "Building index...";
+        write-routine-index-file(INDEX, $dir.IO);
+        say "Index written to {INDEX}";
     }
 }
