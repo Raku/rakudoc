@@ -363,6 +363,12 @@ sub create-routine-index(
 
     # Looping the result of `lookup`, the key only contains numbering.
     # We only need the values
+    # NOTE: If `gist` is not used on `Kind`, lookup results in an error, this
+    # is possibly a bug. The tests[1] for `Perl6::Documentable` use `gist`
+    # as well, but the documentation[2] does not mention it.
+    #
+    # [1]:https://github.com/antoniogamiz/Perl6-Documentable/blob/50577c0eb1e684b76053c56d9523f9aec9cfc652/t/301-registry.t#L25
+    # [2]:https://github.com/antoniogamiz/Perl6-Documentable/blob/50577c0eb1e684b76053c56d9523f9aec9cfc652/docs/reference/perl6-documentable-registry.md#method-lookup
     for $registry.lookup(Kind::Routine.gist, :by<kind>).kv -> $k, $v {
         #say "{$k} {$v.name} in {$v.origin.name}";
         %routine-index.push: ($v.name => $v.origin.name);
