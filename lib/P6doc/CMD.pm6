@@ -94,18 +94,28 @@ package P6doc::CMD {
                                               @documentables);
 
                 show-t-search-results(@search-results);
-
             }
         }
     }
 
     multi MAIN(Str :r($routine), Str :d($dir)) {
         if INDEX.e && not INDEX.z {
-            say "";
-            say "$routine in:";
-            say "";
-            for routine-search($routine, INDEX).list -> $type-name {
-                say $type-name;
+            my @search-results = routine-search($routine, INDEX).list;
+
+            if @search-results.elems == 1 {
+
+                if defined $dir && $dir.IO.d {
+                    MAIN("{@search-results.first}.{$routine}", :d($dir));
+                } else {
+                    MAIN("{@search-results.first}.{$routine}");
+                }
+            } else {
+                say "";
+                say "$routine in:";
+                say "";
+                for @search-results -> $type-name {
+                    say $type-name;
+                }
             }
         } else {
             say "No index file found, building index...";
