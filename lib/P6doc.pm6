@@ -220,8 +220,7 @@ sub process-type-pod-files(
             tg => Perl6::TypeGraph.new-from-file,
             # Be aware that Pod::Load's `load` returns an array,
             # because of that we take the first element
-            pod => load($f).first,
-        );
+            pod => load($f).first );
         $documentable.process();
 
         @results.push($documentable);
