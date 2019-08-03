@@ -12,6 +12,10 @@ The `p6doc` command line tool, improved!
 
 `git clone --recurse-submodules https://github.com/noisegul/perl6-p6doc`
 
+If you have just done `git clone` the usual way, type this afterwards:
+
+    git submodule update --init --recursive
+
 ## Usage
 
 *Note*: Things are moving and changing, so please refer to `p6doc -h`:
