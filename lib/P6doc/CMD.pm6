@@ -119,7 +119,7 @@ package P6doc::CMD {
             }
         } else {
             say "No index file found, building index...";
-            write-routine-index-file(INDEX, $dir);
+            write-routine-index-file(INDEX, $dir.IO);
         }
     }
 
