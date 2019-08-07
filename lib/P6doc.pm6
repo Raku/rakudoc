@@ -345,32 +345,40 @@ sub find-pod-files(
 #| The resulting index has the routine names as keys, each key harbors
 #| an array containing the Types the routine is associated with
 sub create-routine-index(
-    IO::Path $topdir,
+    @topdirs,
     --> Hash
 ) is export {
     my %routine-index;
 
-    my $registry = Perl6::Documentable::Registry.new(
-        # `Perl6::Documentable::Registry`'s $topdir attribute takes a string instead
-        # of an `IO::Path` currently.
-        topdir => $topdir.Str,
-        dirs => ['Type'],
-        verbose => False,
-        use-cache => False,
-    );
-    $registry.compose;
+    my Perl6::Documentable::Registry @registries;
 
-    # Looping the result of `lookup`, the key only contains numbering.
-    # We only need the values
-    # NOTE: If `gist` is not used on `Kind`, lookup results in an error, this
-    # is possibly a bug. The tests[1] for `Perl6::Documentable` use `gist`
-    # as well, but the documentation[2] does not mention it.
-    #
-    # [1]:https://github.com/antoniogamiz/Perl6-Documentable/blob/50577c0eb1e684b76053c56d9523f9aec9cfc652/t/301-registry.t#L25
-    # [2]:https://github.com/antoniogamiz/Perl6-Documentable/blob/50577c0eb1e684b76053c56d9523f9aec9cfc652/docs/reference/perl6-documentable-registry.md#method-lookup
-    for $registry.lookup(Kind::Routine.gist, :by<kind>).kv -> $k, $v {
-        #say "{$k} {$v.name} in {$v.origin.name}";
-        %routine-index.push: ($v.name => $v.origin.name);
+    for @topdirs -> $td {
+        my $registry = Perl6::Documentable::Registry.new(
+            # `Perl6::Documentable::Registry`'s $topdir attribute takes a string instead
+            # of an `IO::Path` currently.
+            topdir => $td.Str,
+            dirs => ['Type'],
+            verbose => False,
+            use-cache => False,
+        );
+        $registry.compose;
+
+        @registries.push($registry);
+    }
+
+    for @registries -> $registry {
+        # Looping the result of `lookup`, the key only contains numbering.
+        # We only need the values
+        # NOTE: If `gist` is not used on `Kind`, lookup results in an error, this
+        # is possibly a bug. The tests[1] for `Perl6::Documentable` use `gist`
+        # as well, but the documentation[2] does not mention it.
+        #
+        # [1]:https://github.com/antoniogamiz/Perl6-Documentable/blob/50577c0eb1e684b76053c56d9523f9aec9cfc652/t/301-registry.t#L25
+        # [2]:https://github.com/antoniogamiz/Perl6-Documentable/blob/50577c0eb1e684b76053c56d9523f9aec9cfc652/docs/reference/perl6-documentable-registry.md#method-lookup
+        for $registry.lookup(Kind::Routine.gist, :by<kind>).kv -> $k, $v {
+            #say "{$k} {$v.name} in {$v.origin.name}";
+            %routine-index.push: ($v.name => $v.origin.name);
+        }
     }
 
     %routine-index
@@ -380,9 +388,9 @@ sub create-routine-index(
 #| it as a json file to the given $file-location
 sub write-routine-index-file(
     IO::Path $file-location,
-    IO::Path $topdir,
+    @topdirs,
 ) is export {
-    spurt($file-location, to-json(create-routine-index($topdir)))
+    spurt($file-location, to-json(create-routine-index(@topdirs)))
 }
 
 #| Search for a single Routine/Method/Subroutine, e.g. `split`

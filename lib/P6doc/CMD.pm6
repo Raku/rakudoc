@@ -127,7 +127,7 @@ package P6doc::CMD {
     multi MAIN(Bool :b($build), Str :d($dir)) {
         if defined $dir and $dir.IO.d {
             say "Building index...";
-            write-routine-index-file(INDEX, $dir.IO);
+            write-routine-index-file(INDEX, [$dir.IO]);
             say "Index written to {INDEX}";
         } elsif defined $dir {
             fail "$dir does not exist, or is not a directory";
@@ -135,7 +135,7 @@ package P6doc::CMD {
             say "Building index...";
             # TODO: write-routine-index and create-routine-index should
             # take an array of directories instead of a single one
-            write-routine-index-file(INDEX, get-doc-locations().first);
+            write-routine-index-file(INDEX, get-doc-locations());
             say "Index written to {INDEX}";
         }
     }
