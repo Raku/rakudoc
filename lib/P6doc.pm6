@@ -1,6 +1,7 @@
 use P6doc::Utils;
 
 use Pod::Load;
+
 use Perl6::TypeGraph;
 use Perl6::Documentable;
 use Perl6::Documentable::File;
@@ -215,13 +216,12 @@ sub process-type-pod-files(
 
     for @files.list -> $f {
         my $documentable = Perl6::Documentable::File.new(
-            dir => "Type",
-            filename => $f.basename.Str,
-            tg => Perl6::TypeGraph.new-from-file,
             # Be aware that Pod::Load's `load` returns an array,
             # because of that we take the first element
-            pod => load($f).first );
-        $documentable.process();
+            pod => load($f).first,
+            filename => $f.basename.IO.extension('').Str,
+        );
+
 
         @results.push($documentable);
     }
