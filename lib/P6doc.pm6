@@ -2,7 +2,6 @@ use P6doc::Utils;
 
 use Pod::Load;
 
-use Perl6::TypeGraph;
 use Perl6::Documentable;
 use Perl6::Documentable::File;
 use Perl6::Documentable::Registry;

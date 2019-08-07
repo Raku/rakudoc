@@ -20,4 +20,4 @@ install:
   - zef --debug --depsonly install .
 
 script:
-  - prove -v -r -e "perl6 --ll-exception -Ilib" t
+  - prove -v -r -e "P6DOC_TEST=1 perl6 --ll-exception -Ilib" t

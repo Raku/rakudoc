@@ -56,7 +56,9 @@ package P6doc::CMD {
         } else {
             # If no directory is provided, search in a given set of standard
             # paths
-            @doc-dirs = get-doc-locations();
+            @doc-dirs = get-doc-locations() X~ 'Type';
+
+            say @doc-dirs;
         }
 
         if not $query.contains('.') {
