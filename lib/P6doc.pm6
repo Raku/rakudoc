@@ -17,6 +17,7 @@ unit module P6doc;
 
 constant DEBUG      = %*ENV<P6DOC_DEBUG>;
 constant INTERACT   = %*ENV<P6DOC_INTERACT>;
+constant DOC-DIR-NAMES = DOCUMENTABLE-DIRS X~ "/";
 
 # die with printing a backtrace
 my class X::P6doc is Exception {
@@ -31,7 +32,7 @@ sub module-names(Str $modulename) returns Seq is export {
 }
 
 sub locate-module(Str $modulename) is export {
-    my @candidates = search-paths() X~ </ Type/ Language/> X~ module-names($modulename).list;
+    my @candidates = search-paths() X~ DOC-DIR-NAMES X~ module-names($modulename).list;
     DEBUG and warn :@candidates.perl;
     my $m = @candidates.first: *.IO.f;
 
@@ -220,6 +221,7 @@ sub process-type-pod-files(
             pod => load($f).first,
             filename => $f.basename.IO.extension('').Str,
         );
+
 
         @results.push($documentable);
     }

@@ -13,3 +13,5 @@ precompiled
 
 # p6doc
 p6doc-index.json
+
+*.data
