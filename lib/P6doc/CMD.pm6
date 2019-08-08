@@ -17,17 +17,16 @@ package P6doc::CMD {
 
                 [-d | --directory]      specify a doc directory
                 [-h | --help]           print usage information
-                [-r | --routine]        search by routine name, currently requires `-d`
-                [-b | --build]          build a routine index, currently requires `-d`
+                [-b | --build]          build a routine index
+                [-r | --routine]        search by routine name
 
             Examples:
 
                 p6doc Map
                 p6doc Map.new
                 p6doc -r=abs
-                p6doc -d=./large-doc/Type Map
-                p6doc -d=./large-doc/Type IO::Path
-                p6doc -d=./large-doc -r=split
+                p6doc -d=./large-doc Map
+                p6doc -d=./large-doc IO::Path
 
             Note:
 
@@ -50,7 +49,12 @@ package P6doc::CMD {
 
         if defined $dir and $dir.IO.d {
             # If directory is provided via `-d`, only look there
-            @doc-dirs = [$dir.IO];
+            # TODO: There should be a way to detect whether the provided
+            # directory is the regular standard documentation, or an arbitrary
+            # folder containing .pod6 files.
+            # Also the categories should be pulled from Perl6::Documentable, rather
+            # than hardcoded here.
+            @doc-dirs = [$dir.IO.add('Type')];
         } elsif defined $dir {
             fail "$dir does not exist, or is not a directory";
         } else {
