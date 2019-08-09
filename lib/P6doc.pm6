@@ -16,7 +16,7 @@ unit module P6doc;
 
 constant DEBUG      = %*ENV<P6DOC_DEBUG>;
 constant INTERACT   = %*ENV<P6DOC_INTERACT>;
-constant DOC-DIR-NAMES = DOCUMENTABLE-DIRS X~ "/";
+constant DOC-DIR-NAMES = DOCUMENTABLE-DIRS X~ "{$*SPEC.dir-sep}";
 
 # die with printing a backtrace
 my class X::P6doc is Exception {
