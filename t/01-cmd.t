@@ -8,7 +8,7 @@ use P6doc::Index;
 ### Remember to set env P6DOC_TEST to successfully run tests!
 ###
 
-plan 5;
+plan 6;
 
 # The following is a way to test `MAIN`s from P6doc::CMD directly
 # without triggering usage. It appears there is no straightforward
