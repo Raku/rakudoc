@@ -5,7 +5,7 @@ use P6doc;
 use P6doc::Index;
 
 ###
-###
+### Remember to set env P6DOC_TEST to successfully run tests!
 ###
 
 plan 5;
@@ -26,6 +26,7 @@ BEGIN sub MAIN(|_) { };
     ok P6doc::CMD::MAIN('Map');
     ok P6doc::CMD::MAIN('Map.new');
     ok P6doc::CMD::MAIN('X::IO');
+    ok P6doc::CMD::MAIN('Array');
 }
 
 # Show test duration
