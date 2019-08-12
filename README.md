@@ -5,7 +5,7 @@ The `p6doc` command line tool, improved!
 ## Prerequisites
 
 - Linux
-- Rakudo 2019.03 (Rakudo Star *not* recommended right now)
+- Rakudo 2019.03 (Rakudo Star **not** supported right now)
 - zef 0.7.4
 
 ## Installation
