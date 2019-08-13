@@ -58,36 +58,6 @@ sub is-pod(IO::Path $p) returns Bool {
     }
 }
 
-sub get-docs(IO::Path $path, :$section, :$package is copy) returns Str is export {
-    if not $path.IO.e {
-        fail "File not found: $path";
-    }
-
-    if (is-pod($path)) eq False {
-        fail "No Pod found in $path";
-    }
-
-    my $proc = Proc.new: :err, :out, :merge;
-
-    if $section.defined {
-        %*ENV<PERL6_POD_HEADING> = $section;
-        my $i = findbin().add('../lib');
-
-        $proc.spawn($*EXECUTABLE, "-I$i", "--doc=SectionFilter", $path);
-        return $proc.out.slurp: :close;
-    } else {
-        $proc.spawn($*EXECUTABLE, "--doc", $path);
-        return $proc.out.slurp: :close;
-    }
-}
-
-sub show-docs(Str $docstr, :$no-pager) is export {
-    # show-docs will only handle paging and formatting, if desired
-    X::NYI.new( feature => "sub {&?ROUTINE.name}",
-                did-you-mean => "get-docs",
-                workaround => "Please be patient." ).throw;
-}
-
 sub disambiguate-f-search($docee, %data) is export {
     my %found;
 
