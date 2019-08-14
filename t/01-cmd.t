@@ -8,7 +8,7 @@ use P6doc::Index;
 ### Remember to set env P6DOC_TEST to successfully run tests!
 ###
 
-plan 6;
+plan 4;
 
 # The following is a way to test `MAIN`s from P6doc::CMD directly
 # without triggering usage. It appears there is no straightforward
@@ -21,15 +21,8 @@ BEGIN sub MAIN(|_) { };
 {
     use P6doc::CMD;
 
-    ok P6doc::CMD::MAIN('');
-    ok P6doc::CMD::MAIN('-h');
     ok P6doc::CMD::MAIN('Map');
     ok P6doc::CMD::MAIN('Map.new');
     ok P6doc::CMD::MAIN('X::IO');
     ok P6doc::CMD::MAIN('Array');
 }
-
-# Show test duration
-my $elapsed = "Test finished after {now - INIT now} seconds";
-say '-'x$elapsed.chars;
-say $elapsed;

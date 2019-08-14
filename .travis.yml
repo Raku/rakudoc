@@ -13,7 +13,7 @@ before_install:
   # https://github.com/ugexe/zef
   - git clone https://github.com/ugexe/zef.git && cd zef && perl6 -Ilib bin/zef install .
   # Install module directly from master, no more breaking changes expected
-  - zef install https://github.com/antoniogamiz/Perl6-Documentable/archive/v2.1.4.tar.gz
+  - zef install https://github.com/antoniogamiz/Perl6-Documentable/archive/v2.3.1.tar.gz
 
 install:
   - cd ${TRAVIS_BUILD_DIR}

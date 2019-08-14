@@ -3,7 +3,7 @@ use P6doc::Utils;
 use Pod::Load;
 
 use Perl6::Documentable;
-use Perl6::Documentable::File;
+use Perl6::Documentable::Primary;
 use Perl6::Documentable::Registry;
 
 use JSON::Fast;
@@ -184,7 +184,7 @@ sub process-type-pod-files(
     my Perl6::Documentable @results;
 
     for @files.list -> $f {
-        my $documentable = Perl6::Documentable::File.new(
+        my $documentable = Perl6::Documentable::Primary.new(
             # Be aware that Pod::Load's `load` returns an array,
             # because of that we take the first element
             pod => load($f).first,
@@ -339,13 +339,7 @@ sub create-routine-index(
     for @registries -> $registry {
         # Looping the result of `lookup`, the key only contains numbering.
         # We only need the values
-        # NOTE: If `gist` is not used on `Kind`, lookup results in an error, this
-        # is possibly a bug. The tests[1] for `Perl6::Documentable` use `gist`
-        # as well, but the documentation[2] does not mention it.
-        #
-        # [1]:https://github.com/antoniogamiz/Perl6-Documentable/blob/50577c0eb1e684b76053c56d9523f9aec9cfc652/t/301-registry.t#L25
-        # [2]:https://github.com/antoniogamiz/Perl6-Documentable/blob/50577c0eb1e684b76053c56d9523f9aec9cfc652/docs/reference/perl6-documentable-registry.md#method-lookup
-        for $registry.lookup(Kind::Routine.gist, :by<kind>).kv -> $k, $v {
+        for $registry.lookup(Kind::Routine, :by<kind>).kv -> $k, $v {
             #say "{$k} {$v.name} in {$v.origin.name}";
             %routine-index.push: ($v.name => $v.origin.name);
         }

@@ -23,10 +23,12 @@ git submodule update --init --recursive
 ```
 
 Until Perl6::Documentable is released and integrated into the ecosystem, manual
-installation is recommended, make sure to install version `2.1.4`:
+installation is recommended, make sure to install version `2.3.1`, if you have
+a newer version, you might need to uninstall it first if there are breaking
+changes:
 
 ```
-zef install https://github.com/antoniogamiz/Perl6-Documentable/archive/v2.1.4.tar.gz
+zef install https://github.com/antoniogamiz/Perl6-Documentable/archive/v2.3.1.tar.gz
 ```
 
 Then install only the remaining dependencies for `p6doc`:
