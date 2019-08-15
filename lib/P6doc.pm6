@@ -11,7 +11,6 @@ use Pod::To::Text;
 
 use Path::Finder;
 
-
 unit module P6doc;
 
 constant DEBUG      = %*ENV<P6DOC_DEBUG>;
