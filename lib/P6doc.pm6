@@ -169,7 +169,7 @@ sub list-installed() is export {
 ###
 
 # NOTE: It appears that `Perl6::Documentable` can be used instead of
-# the more specific `Perl6::Documentable::File`. Noting this here in case
+# the more specific `Perl6::Documentable::Primary`. Noting this here in case
 # this circumstance changes in the future.
 # The following uses `Perl6::Documentable` to annotate any Documentable
 # objects.
@@ -257,6 +257,7 @@ sub find-type-files(
 }
 
 #| Lookup documentation in association with a type, e.g. `Map`, `Map.new`.
+#| The result is an array of Perl6::Documentable object matching the name.
 sub type-search(
     Str $type-name,
     Perl6::Documentable @documentables,
@@ -312,7 +313,7 @@ sub find-pod-files(
 #| $topdir should be a default topdirectory with the subdirectory
 #| 'Type' inside.
 #| The resulting index has the routine names as keys, each key harbors
-#| an array containing the Types the routine is associated with
+#| an array containing the Types the routine is associated with.
 sub create-routine-index(
     @topdirs,
     --> Hash
