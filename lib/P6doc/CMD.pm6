@@ -11,26 +11,30 @@ package P6doc::CMD {
 
     sub USAGE() {
         say q:to/END/;
-            p6doc is a tool for reading perl6 documentation.
+            p6doc, a tool for reading perl6 documentation.
+
+            Usage:
+                p6doc <file>
+                p6doc [<option>...] <type>
+                p6doc [<option>...] <type>.<routine>
+                p6doc [<option>...] -r <routine>
+
+            Where:
+                <file>                  A Perl 6 POD file
+                <Type>                  A Perl 6 type or class
+                <routine>               A routine or method associated with a type
 
             Options:
-
-                [-d | --directory]      specify a doc directory
+                [-d | --directory]      manually specify a doc directory
                 [-h | --help]           print usage information
                 [-b | --build]          build a routine index
                 [-r | --routine]        search by routine name
 
             Examples:
-
-                p6doc Map
+                p6doc ~/my-pod-file.pod6
+                p6doc IO::Spec
                 p6doc Map.new
-                p6doc -r=abs
-                p6doc -d=./large-doc Map
-                p6doc -d=./large-doc IO::Path
 
-            Note:
-
-                Right now it is only recommended to manually specify a doc directory
             END
     }
 
