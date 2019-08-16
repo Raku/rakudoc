@@ -44,6 +44,10 @@ package P6doc::CMD {
         exit;
     }
 
+    multi MAIN(Str $pod-file where *.IO.e) {
+        say load-pod-to-txt($pod-file.IO);
+    }
+
     multi MAIN(Str $query, Str :d($dir)) {
         my @doc-dirs;
 

@@ -399,4 +399,21 @@ sub show-r-search-results(Perl6::Documentable @results) is export {
     }
 }
 
+#| Load pods from a `.pod6` file, convert and return them as txt.
+#| If the file is a multiclass file, the returning string will
+#| contain every pod.
+sub load-pod-to-txt(
+    IO::Path $pod-file,
+    --> Str
+) is export {
+    my Str $txt;
+    my @loaded-pods = load($pod-file);
+
+    for @loaded-pods -> $lp {
+        $txt ~= pod2text($lp);
+    }
+
+    $txt
+}
+
 # vim: expandtab shiftwidth=4 ft=perl6
