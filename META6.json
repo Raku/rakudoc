@@ -1,8 +1,10 @@
 {
     "perl" : "6.d",
     "name" : "P6doc",
-    "auth" : "",
-    "authors" : [ ],
+    "auth" : "github:perl6",
+    "authors" : [
+        "Joel D. S. <@noisegul>"
+    ],
     "version" : "0.0.1",
     "description" : "",
     "license" : "Artistic-2.0",
