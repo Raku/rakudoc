@@ -369,9 +369,17 @@ sub routine-search(
 
 #| Print the search results. This renders the documentation if `@results == 1`
 #| or lists names and associated types if `@results > 1`.
-sub show-t-search-results(Perl6::Documentable @results) is export {
+#| $use-pager enables/disables the usage of the system pager
+sub show-t-search-results(Perl6::Documentable @results, :$use-pager) is export {
     if @results.elems == 1 {
-        say pod2text(@results.first.pod);
+        if $use-pager {
+            # Use `less` on Linux, and `more` on windows
+            my $pager = %*ENV<PAGER> // ($*DISTRO.is-win ?? 'more' !! 'less') unless $use-pager;
+
+            shell("echo '{pod2text(@results.first.pod)}' | $pager");
+        } else {
+            say pod2text(@results.first.pod);
+        }
     } elsif @results.elems < 1 {
         say "No matches";
     } else {
@@ -384,9 +392,16 @@ sub show-t-search-results(Perl6::Documentable @results) is export {
 
 #| Print the search results for a routine search. This renders the documentation
 #| if `@results == 1` or lists names and associated types if `@results > 1`.
-sub show-r-search-results(Perl6::Documentable @results) is export {
+#| $use-pager enables/disables the usage of the system pager
+sub show-r-search-results(Perl6::Documentable @results, :$use-pager) is export {
     if @results.elems == 1 {
-        say pod2text(@results.first.pod);
+        if $use-pager {
+            my $pager = %*ENV<PAGER> // ($*DISTRO.is-win ?? 'more' !! 'less') unless $use-pager;
+
+            shell("echo '{pod2text(@results.first.pod)}' | $pager");
+        } else {
+            say pod2text(@results.first.pod);
+        }
     } elsif @results.elems < 1 {
         say "No matches";
     } else {
