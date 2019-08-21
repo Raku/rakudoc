@@ -52,7 +52,7 @@ package P6doc::CMD {
         say load-pod-to-txt($pod-file.IO);
     }
 
-    multi MAIN(Str $query, Str :d($dir)) {
+    multi MAIN(Str $query, Str :d(:$dir)) {
         my @doc-dirs;
 
         if defined $dir and $dir.IO.d {
@@ -110,7 +110,7 @@ package P6doc::CMD {
         }
     }
 
-    multi MAIN(Str :r($routine), Str :d($dir)) {
+    multi MAIN(Str :r(:$routine), Str :d(:$dir)) {
         my $routine-index-path = routine-index-path();
 
         if $routine-index-path.e && not INDEX.z {
@@ -136,7 +136,7 @@ package P6doc::CMD {
         }
     }
 
-    multi MAIN(Bool :b($build), Str :d($dir)) {
+    multi MAIN(Bool :b(:$build), Str :d(:$dir)) {
         my $routine-index-path = routine-index-path();
 
         if defined $dir and $dir.IO.d {
