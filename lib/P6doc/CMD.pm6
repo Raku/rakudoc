@@ -21,11 +21,11 @@ package P6doc::CMD {
 
             Where:
                 <file>                  A Perl 6 POD file
-                <Type>                  A Perl 6 type or class
+                <type>                  A Perl 6 type or class
                 <routine>               A routine or method associated with a type
 
             Options:
-                [-d | --directory]      manually specify a doc directory
+                [-d | --dir]            manually specify a doc directory
                 [-h | --help]           print usage information
                 [-b | --build]          build a routine index
                 [-r | --routine]        search by routine name
