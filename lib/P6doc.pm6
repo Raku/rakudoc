@@ -164,10 +164,6 @@ sub list-installed() is export {
     }
 }
 
-###
-### NEXT
-###
-
 # NOTE: It appears that `Perl6::Documentable` can be used instead of
 # the more specific `Perl6::Documentable::Primary`. Noting this here in case
 # this circumstance changes in the future.
@@ -189,7 +185,6 @@ sub process-type-pod-files(
             pod => load($f).first,
             filename => $f.basename.IO.extension('').Str,
         );
-
 
         @results.push($documentable);
     }
