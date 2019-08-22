@@ -369,7 +369,7 @@ sub show-t-search-results(Perl6::Documentable @results, :$use-pager) is export {
     if @results.elems == 1 {
         if $use-pager {
             # Use `less` on Linux, and `more` on windows
-            my $pager = %*ENV<PAGER> // ($*DISTRO.is-win ?? 'more' !! 'less') unless $use-pager;
+            my $pager = %*ENV<PAGER> // ($*DISTRO.is-win ?? 'more' !! 'less');
 
             shell("echo '{pod2text(@results.first.pod)}' | $pager");
         } else {
@@ -391,7 +391,7 @@ sub show-t-search-results(Perl6::Documentable @results, :$use-pager) is export {
 sub show-r-search-results(Perl6::Documentable @results, :$use-pager) is export {
     if @results.elems == 1 {
         if $use-pager {
-            my $pager = %*ENV<PAGER> // ($*DISTRO.is-win ?? 'more' !! 'less') unless $use-pager;
+            my $pager = %*ENV<PAGER> // ($*DISTRO.is-win ?? 'more' !! 'less');
 
             shell("echo '{pod2text(@results.first.pod)}' | $pager");
         } else {
