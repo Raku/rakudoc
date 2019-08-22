@@ -31,7 +31,7 @@ The `p6doc` command line tool, improved!
 ## Prerequisites
 
 - Linux
-- Rakudo 2019.03 (Rakudo Star **not** supported right now)
+- Rakudo 2019.03 (Rakudo Star **not** recommended right now)
 - zef 0.7.4
 
 ## Installation
@@ -57,7 +57,9 @@ changes:
 zef install https://github.com/antoniogamiz/Perl6-Documentable/archive/v2.3.1.tar.gz
 ```
 
-Then install only the remaining dependencies for `p6doc`:
+Then install only the remaining dependencies for `p6doc` (note that it's
+only recommended to install the dependencies for this module currently, not
+the module itself, see FAQ for more information):
 
 ```
 $ zef --depsonly install ./perl6-p6doc
@@ -65,9 +67,10 @@ $ zef --depsonly install ./perl6-p6doc
 
 ## Trying it out with the test-docs
 
-From inside the repository, you can try out `p6doc` using the testdata, be aware
-that the test-docs obviously only include the minimum, and are primarily designed to
-test correct POD parsing, so they don't necessarily represent actual documentation.
+From inside the repository folder, you can try out `p6doc` using the testdata,
+be aware that the test-docs obviously only include the minimum, and are
+primarily designed to test correct POD parsing, so they don't necessarily
+represent actual documentation.
 
 Type searching:
 ```
@@ -158,3 +161,22 @@ Then search for single routines in the given directory:
 $ perl6 -Ilib bin/p6doc -d=../doc/doc -r=say
 $ perl6 -Ilib bin/p6doc -d=../doc/doc -r=exit
 ```
+
+## FAQ
+
+### Why is installation of this module not yet recommended?
+
+This project turned the former
+[p6doc script from the perl6/doc repository](https://github.com/perl6/doc/blob/a38f5a5fb480aa51009e2be206c7d7d4196ac347/bin/p6doc)
+into it's own module.
+Both this project and the whole perl6/doc documentation project currently have
+the module identity `p6doc`, same thing for some of the dependencies.
+
+### Why is Rakudo Star not yet recommended?
+
+Current and past versions of Rakudo Star ship with the complete perl6/doc documentation
+repository. This project only works on the most current set of documentation files from
+perl6/doc `master`. Rakudo Star may lead to wrong dependency versions being used, especially for
+`Perl6::Documentable`, one of this projects main dependencies. It *should* still work,
+but be aware that until a new version of Rakudo Star with the most current changes
+from perl6/doc is released, Rakudo Star will remain unrecommended for this project.
