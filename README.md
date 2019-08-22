@@ -2,7 +2,7 @@
 
 The `p6doc` command line tool, improved!
 
-``` perl6
+```
             p6doc, a tool for reading perl6 documentation.
 
             Usage:
