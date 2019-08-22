@@ -21,8 +21,8 @@ BEGIN sub MAIN(|_) { };
 {
     use P6doc::CMD;
 
-    ok P6doc::CMD::MAIN('Map');
-    ok P6doc::CMD::MAIN('Map.new');
-    ok P6doc::CMD::MAIN('X::IO');
-    ok P6doc::CMD::MAIN('Array');
+    ok P6doc::CMD::MAIN('Map', :n(True));
+    ok P6doc::CMD::MAIN('Map.new', :n(True));
+    ok P6doc::CMD::MAIN('X::IO', :n(True));
+    ok P6doc::CMD::MAIN('Array', :n(True));
 }
