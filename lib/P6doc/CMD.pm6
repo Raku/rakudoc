@@ -52,7 +52,10 @@ package P6doc::CMD {
         say load-pod-to-txt($pod-file.IO);
     }
 
-    multi MAIN(Str $query, Str :d(:$dir)) {
+    multi MAIN(Str $query, Str :d(:$dir), Bool :n(:$nopager)) {
+        my $use-pager = True;
+        $use-pager = False if $nopager;
+
         my @doc-dirs;
 
         if defined $dir and $dir.IO.d {
@@ -83,7 +86,7 @@ package P6doc::CMD {
             @documentables = process-type-pod-files(@pod-paths);
             @search-results = type-search($query, @documentables);
 
-            show-t-search-results(@search-results);
+            show-t-search-results(@search-results, :use-pager($use-pager));
 
         } else {
             # e.g. split `Map.new` into `Map` and `new`
@@ -105,12 +108,15 @@ package P6doc::CMD {
                                               :routine(@squery[1]),
                                               @documentables);
 
-                show-t-search-results(@search-results);
+                show-t-search-results(@search-results, :use-pager($use-pager));
             }
         }
     }
 
-    multi MAIN(Str :r(:$routine), Str :d(:$dir)) {
+    multi MAIN(Str :r(:$routine), Str :d(:$dir), Bool :n(:$nopager)) {
+        my $use-pager = True;
+        $use-pager = False if $nopager;
+
         my $routine-index-path = routine-index-path();
 
         if $routine-index-path.e && not INDEX.z {
@@ -119,9 +125,9 @@ package P6doc::CMD {
             if @search-results.elems == 1 {
 
                 if defined $dir && $dir.IO.d {
-                    MAIN("{@search-results.first}.{$routine}", :d($dir));
+                    MAIN("{@search-results.first}.{$routine}", :d($dir), :n($nopager));
                 } else {
-                    MAIN("{@search-results.first}.{$routine}");
+                    MAIN("{@search-results.first}.{$routine}", :n($nopager));
                 }
             } else {
                 say "";
