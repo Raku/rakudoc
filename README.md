@@ -2,6 +2,32 @@
 
 The `p6doc` command line tool, improved!
 
+``` perl6
+            p6doc, a tool for reading perl6 documentation.
+
+            Usage:
+                p6doc <file>
+                p6doc [<option>...] <type>
+                p6doc [<option>...] <type>.<routine>
+                p6doc [<option>...] -r=<routine>
+
+            Where:
+                <file>                  A Perl 6 POD file
+                <type>                  A Perl 6 type or class
+                <routine>               A routine or method associated with a type
+
+            Options:
+                [-b | --build]          build a routine index
+                [-d | --dir]            manually specify a doc directory
+                [-h | --help]           print usage information
+                [-n | --nopager]        deactivate pager usage for output
+
+            Examples:
+                p6doc ~/my-pod-file.pod6
+                p6doc IO::Spec
+                p6doc Map.new
+```
+
 ## Prerequisites
 
 - Linux
