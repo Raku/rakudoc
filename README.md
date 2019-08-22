@@ -67,6 +67,8 @@ $ zef --depsonly install ./perl6-p6doc
 
 ## Trying it out with the test-docs
 
+This is the easiest way to give it a try.
+
 From inside the repository folder, you can try out `p6doc` using the testdata,
 be aware that the test-docs obviously only include the minimum, and are
 primarily designed to test correct POD parsing, so they don't necessarily
