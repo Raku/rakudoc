@@ -5,8 +5,8 @@ use Test;
 plan 1;
 
 subtest 'Core', {
-    use-ok('P6doc');
-    use-ok('P6doc::CMD');
-    use-ok('P6doc::Index');
-    use-ok('P6doc::Utils');
+    use-ok('Rakudoc');
+    use-ok('Rakudoc::CMD');
+    use-ok('Rakudoc::Index');
+    use-ok('Rakudoc::Utils');
 }

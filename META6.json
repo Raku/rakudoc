@@ -1,24 +1,25 @@
 {
     "perl" : "6.d",
-    "name" : "P6doc",
-    "auth" : "github:perl6",
+    "name" : "rakudoc",
+    "auth" : "github:Raku",
     "authors" : [
         "Joel D. S. <@noisegul>"
     ],
-    "version" : "0.1.0",
-    "description" : "",
+    "version" : "0.1.1",
+    "description" : "A tool for reading Raku documentation",
     "license" : "Artistic-2.0",
     "provides" : {
-        "P6doc" : "lib/P6doc.pm6"
+        "Rakudoc" : "lib/Rakudoc.rakumod"
     },
     "depends" : [
         "JSON::Fast:ver<0.9.18+>",
         "Path::Finder:ver<0.2.0+>",
-        "Perl6::Documentable:ver<2.3.1>",
+        "Documentable:ver<1.2.5+>",
         "Pod::Load:ver<0.5.2+>"],
     "build-depends" : [ ],
     "test-depends" : [ ],
+    "raku" : "6.d",
     "resources" : [ ],
     "tags": [ ],
-    "source-url" : "https://github.com/noisegul/perl6-p6doc"
+    "source-url" : "https://github.com/Raku/rakudoc"
 }

@@ -1,12 +1,13 @@
 use JSON::Fast;
 
-unit module P6doc::Index;
+unit module Rakudoc::Index;
 
-use P6doc::Utils;
+use Rakudoc::Utils;
 
-constant $index-filename = 'p6doc-index.json';
+constant $index-filename = 'rakudoc-index.json';
 
 constant @index-path-candidates = Array[IO::Path](
+    ("$*HOME/.raku").IO.add($index-filename),
     ("$*HOME/.perl6").IO.add($index-filename),
     $*CWD.add($index-filename)
 );
@@ -15,7 +16,7 @@ constant $index-path = {
     if %*ENV<XDG_CACHE_HOME> {
         %*ENV<XDG_CACHE_HOME>.IO.add($index-filename)
     } else {
-        ("$*HOME{$*SPEC.dir-sep}.perl6").IO.add($index-filename)
+        ("$*HOME{$*SPEC.dir-sep}.raku").IO.add($index-filename)
     }
 }
 
@@ -30,7 +31,7 @@ sub get-index-path returns IO::Path {
     }
 
     unless $index-path.defined and $index-path.e {
-        fail "Unable to find p6doc-index.json at: {@index-path-candidates.join(', ')}"
+        fail "Unable to find rakudoc-index.json at: {@index-path-candidates.join(', ')}"
     }
 
     return $index-path;
@@ -47,6 +48,6 @@ sub routine-index-path() returns IO::Path is export {
     if defined $xdg-cache-home {
         return $xdg-cache-home.IO.add($index-filename);
     } else {
-        return "{$*HOME}{$*SPEC.dir-sep}.perl6".IO.add($index-filename);
+        return "{$*HOME}{$*SPEC.dir-sep}.raku".IO.add($index-filename);
     }
 }

@@ -2,26 +2,26 @@ use v6.d;
 
 use Test;
 
-use P6doc;
-use P6doc::Utils;
-use P6doc::Index;
+use Rakudoc;
+use Rakudoc::Utils;
+use Rakudoc::Index;
 
-use Perl6::Documentable;
+use Documentable;
 
 
 ###
-### Remember to set env P6DOC_TEST to successfully run tests!
+### Remember to set env RAKUDOC_TEST to successfully run tests!
 ###
 
 plan 3;
 
 subtest 'Search Type: \'Array\'', {
     # NOTE: Hardcoding 'Type' subfolder here should be avoided in the future
-    # an exported variable from Perl6::Documentable should be used instead.
+    # an exported variable from Documentable should be used instead.
     my @doc-dirs = get-doc-locations() X~ 'Type';
     my IO::Path @pod-paths;
-    my Perl6::Documentable @documentables;
-    my Perl6::Documentable @search-results;
+    my Documentable @documentables;
+    my Documentable @search-results;
 
     for @doc-dirs -> $folder {
         @pod-paths.append: find-type-files('Array', $folder);
@@ -39,8 +39,8 @@ subtest 'Search Type & routine: \'Map.new\'', {
     # NOTE: Hardcoding 'Type' subfolder here should be avoided in the future
     my @doc-dirs = get-doc-locations() X~ 'Type';
     my IO::Path @pod-paths;
-    my Perl6::Documentable @documentables;
-    my Perl6::Documentable @search-results;
+    my Documentable @documentables;
+    my Documentable @search-results;
 
     for @doc-dirs -> $folder {
         @pod-paths.append: find-type-files('Map', $folder);

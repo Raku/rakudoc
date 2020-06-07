@@ -1,27 +1,27 @@
-use P6doc;
-use P6doc::Utils;
-use P6doc::Index;
+use Rakudoc;
+use Rakudoc::Utils;
+use Rakudoc::Index;
 
-use Perl6::Documentable;
+use Documentable;
 
 use JSON::Fast;
 
-package P6doc::CMD {
-    my $PROGRAM-NAME = "p6doc";
+package Rakudoc::CMD {
+    my $PROGRAM-NAME = "rakudoc";
 
     sub USAGE() {
         say q:to/END/;
-            p6doc, a tool for reading perl6 documentation.
+            rakudoc, a tool for reading Raku documentation
 
             Usage:
-                p6doc <file>
-                p6doc [<option>...] <type>
-                p6doc [<option>...] <type>.<routine>
-                p6doc [<option>...] -r=<routine>
+                rakudoc <file>
+                rakudoc [<option>...] <type>
+                rakudoc [<option>...] <type>.<routine>
+                rakudoc [<option>...] -r=<routine>
 
             Where:
-                <file>                  A Perl 6 POD file
-                <type>                  A Perl 6 type or class
+                <file>                  A Raku POD file
+                <type>                  A Raku type or class
                 <routine>               A routine or method associated with a type
 
             Options:
@@ -31,9 +31,9 @@ package P6doc::CMD {
                 [-n | --nopager]        deactivate pager usage for output
 
             Examples:
-                p6doc ~/my-pod-file.pod6
-                p6doc IO::Spec
-                p6doc Map.new
+                rakudoc ~/my-pod-file.rakumod
+                rakudoc IO::Spec
+                rakudoc Map.new
 
             END
     }
@@ -62,8 +62,8 @@ package P6doc::CMD {
             # If directory is provided via `-d`, only look there
             # TODO: There should be a way to detect whether the provided
             # directory is the regular standard documentation, or an arbitrary
-            # folder containing .pod6 files.
-            # Also the categories should be pulled from Perl6::Documentable, rather
+            # folder containing .rakudoc files.
+            # Also the categories should be pulled from Documentable, rather
             # than hardcoded here.
             @doc-dirs = [$dir.IO.add('Type')];
         } elsif defined $dir {
@@ -76,8 +76,8 @@ package P6doc::CMD {
 
         if not $query.contains('.') {
             my IO::Path @pod-paths;
-            my Perl6::Documentable @documentables;
-            my Perl6::Documentable @search-results;
+            my Documentable @documentables;
+            my Documentable @search-results;
 
             for @doc-dirs -> $dir {
                 @pod-paths.append: find-type-files($query, $dir);
@@ -96,8 +96,8 @@ package P6doc::CMD {
                 fail 'Malformed input, example: Map.elems';
             } else {
                 my IO::Path @pod-paths;
-                my Perl6::Documentable @documentables;
-                my Perl6::Documentable @search-results;
+                my Documentable @documentables;
+                my Documentable @search-results;
 
                 for @doc-dirs -> $dir {
                     @pod-paths.append: find-type-files(@squery[0], $dir);

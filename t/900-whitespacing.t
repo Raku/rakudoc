@@ -22,11 +22,11 @@ class Test-Files {
     }
 
     method pods() {
-        return $.files.grep({$_.ends-with: '.pod6'})
+        return $.files.grep({$_.ends-with: any(<.pod6 .rakudoc>)})
     }
 
     method documents() {
-        return $.files.grep({$_.ends-with: '.pod6' or $_.ends-with: '.md'})
+        return $.files.grep({$_.ends-with: any(<.pod6 .rakudoc .md>)})
     }
 
 }
@@ -76,4 +76,4 @@ for @files -> $file {
     ok $ok, "$error: Must not have any trailing whitespace.";
 }
 
-# vim: expandtab shiftwidth=4 ft=perl6
+# vim: expandtab shiftwidth=4 ft=raku

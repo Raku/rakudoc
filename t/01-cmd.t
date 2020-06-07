@@ -1,16 +1,16 @@
 use v6.d;
 use Test;
 
-use P6doc;
-use P6doc::Index;
+use Rakudoc;
+use Rakudoc::Index;
 
 ###
-### Remember to set env P6DOC_TEST to successfully run tests!
+### Remember to set env RAKUDOC_TEST to successfully run tests!
 ###
 
 plan 4;
 
-# The following is a way to test `MAIN`s from P6doc::CMD directly
+# The following is a way to test `MAIN`s from Rakudoc::CMD directly
 # without triggering usage. It appears there is no straightforward
 # method to suppress or capture it's output to sdtout though.
 # A possible way to do that could be
@@ -19,10 +19,10 @@ plan 4;
 # and test them instead.
 BEGIN sub MAIN(|_) { };
 {
-    use P6doc::CMD;
+    use Rakudoc::CMD;
 
-    ok P6doc::CMD::MAIN('Map', :n(True));
-    ok P6doc::CMD::MAIN('Map.new', :n(True));
-    ok P6doc::CMD::MAIN('X::IO', :n(True));
-    ok P6doc::CMD::MAIN('Array', :n(True));
+    ok Rakudoc::CMD::MAIN('Map', :n(True));
+    ok Rakudoc::CMD::MAIN('Map.new', :n(True));
+    ok Rakudoc::CMD::MAIN('X::IO', :n(True));
+    ok Rakudoc::CMD::MAIN('Array', :n(True));
 }

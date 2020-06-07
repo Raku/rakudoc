@@ -1,32 +1,33 @@
-use P6doc::Utils;
+use Rakudoc::Utils;
 
 use Pod::Load;
 
-use Perl6::Documentable;
-use Perl6::Documentable::Primary;
-use Perl6::Documentable::Registry;
+use Documentable;
+use Documentable::Primary;
+use Documentable::Registry;
 
 use JSON::Fast;
 use Pod::To::Text;
 
 use Path::Finder;
 
-unit module P6doc;
+unit module Rakudoc;
 
-constant DEBUG      = %*ENV<P6DOC_DEBUG>;
-constant INTERACT   = %*ENV<P6DOC_INTERACT>;
+constant DEBUG      = %*ENV<RAKUDOC_DEBUG>;
+constant INTERACT   = %*ENV<RAKUDOC_INTERACT>;
 constant DOC-DIR-NAMES = DOCUMENTABLE-DIRS X~ "{$*SPEC.dir-sep}";
+constant DOC-SUFFIX = '.pod6';  # As used in the main Raku/doc project
 
 # die with printing a backtrace
-my class X::P6doc is Exception {
+my class X::Rakudoc is Exception {
     has $.message;
-    multi method gist(X::P6doc:D:) {
+    multi method gist(X::Rakudoc:D:) {
         self.message;
     }
 }
 
 sub module-names(Str $modulename) returns Seq is export {
-    return $modulename.split('::').join('/') X~ <.pm .pm6 .pod .pod6>;
+    return $modulename.split('::').join('/') X~ <.rakumod .rakudoc .pm .pm6 .pod .pod6>;
 }
 
 sub locate-module(Str $modulename) is export {
@@ -43,7 +44,7 @@ sub locate-module(Str $modulename) is export {
         my $message = join "\n",
         "Cannot locate $modulename in any of the following paths:",
         search-paths.map({"  $_"});
-        X::P6doc.new(:$message).throw;
+        X::Rakudoc.new(:$message).throw;
     }
 
     return $m;
@@ -164,22 +165,22 @@ sub list-installed() is export {
     }
 }
 
-# NOTE: It appears that `Perl6::Documentable` can be used instead of
-# the more specific `Perl6::Documentable::Primary`. Noting this here in case
+# NOTE: It appears that `Documentable` can be used instead of
+# the more specific `Documentable::Primary`. Noting this here in case
 # this circumstance changes in the future.
-# The following uses `Perl6::Documentable` to annotate any Documentable
+# The following uses `Documentable` to annotate any documentable
 # objects.
 
 #| Receive a list of paths to pod files and process them, return an array of
-#| processed Perl6::Documentable objects
+#| processed Documentable objects
 sub process-type-pod-files(
     IO::Path @files,
-    --> Array[Perl6::Documentable]
+    --> Array[Documentable]
 ) is export {
-    my Perl6::Documentable @results;
+    my Documentable @results;
 
     for @files.list -> $f {
-        my $documentable = Perl6::Documentable::Primary.new(
+        my $documentable = Documentable::Primary.new(
             # Be aware that Pod::Load's `load` returns an array,
             # because of that we take the first element
             pod => load($f).first,
@@ -199,11 +200,11 @@ sub type-path-from-name(
     --> IO::Path
 ) is export {
     if not $type-name.contains('::') {
-        return ($type-name.IO ~ '.pod6').IO
+        return ($type-name.IO ~ DOC-SUFFIX).IO
     } else {
         # Replace `::` with the directory separator specific to the
         # platform
-        return ($type-name.subst('::', $*SPEC.dir-sep) ~ '.pod6').IO;
+        return ($type-name.subst('::', $*SPEC.dir-sep) ~ DOC-SUFFIX).IO;
     }
 }
 
@@ -233,15 +234,15 @@ sub find-type-files(
     }
 
     # NOTE: There is currently an inconsistency when it comes to independent routines.
-    # In Perl6::Documentable, the `name` attribute for the Documentable object containing
-    # a given routine will only be `routines`, while the actual filename for the `.pod6` file for
-    # independent routines in the Perl 6 documentation is `independent-routines.pod6`.
+    # In Documentable, the `name` attribute for the Documentable object containing
+    # a given routine will only be `routines`, while the actual filename for the
+    # independent routines in the Raku documentation is `independent-routines.rakudoc`.
     #
     # For now, this is treated as an edge case here.
     if $search-name eq 'routines' {
-        $finder = $finder.name("independent-routines.pod6");
+        $finder = $finder.name("independent-routines" ~ DOC-SUFFIX);
     } else {
-        $finder = $finder.name("{$search-name}.pod6");
+        $finder = $finder.name($search-name ~ DOC-SUFFIX);
     }
 
     for $finder.in($dir, :file) -> $file {
@@ -252,14 +253,14 @@ sub find-type-files(
 }
 
 #| Lookup documentation in association with a type, e.g. `Map`, `Map.new`.
-#| The result is an array of Perl6::Documentable object matching the name.
+#| The result is an array of Documentable object matching the name.
 sub type-search(
     Str $type-name,
-    Perl6::Documentable @documentables,
+    Documentable @documentables,
     Str :$routine?,
-    --> Array[Perl6::Documentable]
+    --> Array[Documentable]
 ) is export {
-    my Perl6::Documentable @results;
+    my Documentable @results;
 
     # First, remove elements where name does not match
     @results = @documentables.grep: *.name eq $type-name;
@@ -267,11 +268,11 @@ sub type-search(
     # If a routine to search for has been provided, we now look for it inside
     # the found types, and return those results instead
     if defined $routine {
-        my Perl6::Documentable @routine-results;
+        my Documentable @routine-results;
 
         for @results -> $rs {
             # Loop definitions, look for searched routine
-            # `.defs` contains a list of Perl6::Documentable defined inside a
+            # `.defs` contains a list of Documentable defined inside a
             # given object
             for $rs.defs -> $def {
                 if $def.name eq $routine {
@@ -286,7 +287,7 @@ sub type-search(
     @results
 }
 
-#| Search for all `.pod6` files in a given directory (and subdirectories)
+#| Search for all `.rakudoc` files in a given directory (and subdirectories)
 sub find-pod-files(
     $dir,
     --> Array[IO::Path]
@@ -295,7 +296,7 @@ sub find-pod-files(
 
     my $finder = Path::Finder;
 
-    $finder = $finder.ext('pod6');
+    $finder = $finder.ext(DOC-SUFFIX);
 
     for $finder.in($dir, :file) -> $file {
         @results.push($file);
@@ -304,7 +305,7 @@ sub find-pod-files(
     @results
 }
 
-#| Create a routine index for Perl 6 standard documentation.
+#| Create a routine index for Raku standard documentation.
 #| $topdir should be a default topdirectory with the subdirectory
 #| 'Type' inside.
 #| The resulting index has the routine names as keys, each key harbors
@@ -315,11 +316,11 @@ sub create-routine-index(
 ) is export {
     my %routine-index;
 
-    my Perl6::Documentable::Registry @registries;
+    my Documentable::Registry @registries;
 
     for @topdirs -> $td {
-        my $registry = Perl6::Documentable::Registry.new(
-            # `Perl6::Documentable::Registry`'s $topdir attribute takes a string instead
+        my $registry = Documentable::Registry.new(
+            # `Documentable::Registry`'s $topdir attribute takes a string instead
             # of an `IO::Path` currently.
             topdir => $td.Str,
             dirs => ['Type'],
@@ -365,7 +366,7 @@ sub routine-search(
 #| Print the search results. This renders the documentation if `@results == 1`
 #| or lists names and associated types if `@results > 1`.
 #| $use-pager enables/disables the usage of the system pager
-sub show-t-search-results(Perl6::Documentable @results, :$use-pager) is export {
+sub show-t-search-results(Documentable @results, :$use-pager) is export {
     if @results.elems == 1 {
         if $use-pager {
             # Use `less` on Linux, and `more` on windows
@@ -388,7 +389,7 @@ sub show-t-search-results(Perl6::Documentable @results, :$use-pager) is export {
 #| Print the search results for a routine search. This renders the documentation
 #| if `@results == 1` or lists names and associated types if `@results > 1`.
 #| $use-pager enables/disables the usage of the system pager
-sub show-r-search-results(Perl6::Documentable @results, :$use-pager) is export {
+sub show-r-search-results(Documentable @results, :$use-pager) is export {
     if @results.elems == 1 {
         if $use-pager {
             my $pager = %*ENV<PAGER> // ($*DISTRO.is-win ?? 'more' !! 'less');
@@ -409,7 +410,7 @@ sub show-r-search-results(Perl6::Documentable @results, :$use-pager) is export {
     }
 }
 
-#| Load pods from a `.pod6` file, convert and return them as txt.
+#| Load pods from a `.rakudoc` file, convert and return them as txt.
 #| If the file is a multiclass file, the returning string will
 #| contain every pod.
 sub load-pod-to-txt(
@@ -426,4 +427,4 @@ sub load-pod-to-txt(
     $txt
 }
 
-# vim: expandtab shiftwidth=4 ft=perl6
+# vim: expandtab shiftwidth=4 ft=raku
