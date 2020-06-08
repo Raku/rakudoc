@@ -372,7 +372,7 @@ sub show-t-search-results(Documentable @results, :$use-pager) is export {
             # Use `less` on Linux, and `more` on windows
             my $pager = %*ENV<PAGER> // ($*DISTRO.is-win ?? 'more' !! 'less');
 
-            shell("echo '{pod2text(@results.first.pod)}' | $pager");
+            shell("cat <<'RAKUDOC_HACK_END' | $pager\n{pod2text(@results.first.pod)}\nRAKUDOC_HACK_END");
         } else {
             say pod2text(@results.first.pod);
         }
@@ -394,7 +394,7 @@ sub show-r-search-results(Documentable @results, :$use-pager) is export {
         if $use-pager {
             my $pager = %*ENV<PAGER> // ($*DISTRO.is-win ?? 'more' !! 'less');
 
-            shell("echo '{pod2text(@results.first.pod)}' | $pager");
+            shell("cat <<'RAKUDOC_HACK_END' | $pager\n{pod2text(@results.first.pod)}\nRAKUDOC_HACK_END");
         } else {
             say pod2text(@results.first.pod);
         }
