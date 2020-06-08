@@ -377,7 +377,7 @@ sub show-t-search-results(Documentable @results, :$use-pager) is export {
             say pod2text(@results.first.pod);
         }
     } elsif @results.elems < 1 {
-        X::Rakudoc.new(:message<No matches>).throw;
+        X::Rakudoc.new(:message("No matches in [{get-doc-locations.join(', ')}]")).throw;
     } else {
         say 'Multiple matches:';
         for @results -> $r {
@@ -399,7 +399,7 @@ sub show-r-search-results(Documentable @results, :$use-pager) is export {
             say pod2text(@results.first.pod);
         }
     } elsif @results.elems < 1 {
-        X::Rakudoc.new(:message<No matches>).throw;
+        X::Rakudoc.new(:message("No matches in [{get-doc-locations.join(', ')}]")).throw;
     } else {
         say 'Multiple matches:';
         for @results -> $r {

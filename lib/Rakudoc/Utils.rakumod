@@ -6,8 +6,8 @@ unit module Rakudoc::Utils;
 # triggered. So for now it's just a regular scalar
 our $rakudoc-test-mode = %*ENV<RAKUDOC_TEST> // %*ENV<P6DOC_TEST>;
 
-our @sys-doc-locations = $*REPO.repo-chain.map(*.Str.IO.add: 'doc').grep(*.d);
-our @test-doc-locations = [$*CWD.add('t').add('testdata')
+my @sys-doc-locations = $*REPO.repo-chain.map(*.Str.IO.add: 'doc').grep(*.d);
+my @test-doc-locations = [$*CWD.add('t').add('testdata')
                                 .add('mini-doc').add('test-doc')];
 
 sub get-doc-locations() is export {
