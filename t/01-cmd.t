@@ -10,19 +10,20 @@ use Rakudoc::Index;
 
 plan 4;
 
-# The following is a way to test `MAIN`s from Rakudoc::CMD directly
-# without triggering usage. It appears there is no straightforward
-# method to suppress or capture it's output to sdtout though.
-# A possible way to do that could be
-# https://github.com/sergot/IO-Capture-Simple/blob/master/t/stdout.t
-# But it's better to cover everything MAIN calls in other routines
-# and test them instead.
+# The following is a way to test `MAIN`s from Rakudoc::CMD directly without
+# triggering usage. The C<use Rakudoc::CMD> must be in a new lexical scope,
+# where its MAIN will be harmlessly installed but not jumped to.
 BEGIN sub MAIN(|_) { };
-{
+
+use IO::Capture::Simple;
+my @status;
+capture_stdout {
     use Rakudoc::CMD;
 
-    ok Rakudoc::CMD::MAIN('Map', :n(True));
-    ok Rakudoc::CMD::MAIN('Map.new', :n(True));
-    ok Rakudoc::CMD::MAIN('X::IO', :n(True));
-    ok Rakudoc::CMD::MAIN('Array', :n(True));
+    @status.push: so Rakudoc::CMD::MAIN('Map', :n(True)), "Map";
+    @status.push: so Rakudoc::CMD::MAIN('Map.new', :n(True)), "Map.new";
+    @status.push: so Rakudoc::CMD::MAIN('X::IO', :n(True)), "X::IO";
+    @status.push: so Rakudoc::CMD::MAIN('Array', :n(True)), "Array";
 }
+
+for @status -> $status, $descr { ok $status, $descr; }

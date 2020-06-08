@@ -20,7 +20,9 @@
         "Documentable:ver<1.2.5+>",
         "Pod::Load:ver<0.5.2+>"],
     "build-depends" : [ ],
-    "test-depends" : [ ],
+    "test-depends" : [
+        "IO::Capture::Simple:ver<0.0.1+>"
+    ],
     "raku" : "6.d",
     "resources" : [ ],
     "tags": [ ],
