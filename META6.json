@@ -9,7 +9,10 @@
     "description" : "A tool for reading Raku documentation",
     "license" : "Artistic-2.0",
     "provides" : {
-        "Rakudoc" : "lib/Rakudoc.rakumod"
+        "Rakudoc" : "lib/Rakudoc.rakumod",
+        "Rakudoc::CMD" : "lib/Rakudoc/CMD.rakumod",
+        "Rakudoc::Index" : "lib/Rakudoc/Index.rakumod",
+        "Rakudoc::Utils" : "lib/Rakudoc/Utils.rakumod"
     },
     "depends" : [
         "JSON::Fast:ver<0.9.18+>",
