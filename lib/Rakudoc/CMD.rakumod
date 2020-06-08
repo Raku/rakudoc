@@ -71,7 +71,7 @@ package Rakudoc::CMD {
         } else {
             # If no directory is provided, search in a given set of standard
             # paths
-            @doc-dirs = get-doc-locations() X~ 'Type';
+            @doc-dirs = get-doc-locations.map: *.add('Type');
         }
 
         if not $query.contains('.') {
@@ -111,6 +111,15 @@ package Rakudoc::CMD {
                 show-t-search-results(@search-results, :use-pager($use-pager));
             }
         }
+
+        CATCH {
+            when X::Rakudoc {
+                .put;
+                exit 2;
+            }
+        }
+
+        True;  # Meaningless except to t/01-cmd.t
     }
 
     multi MAIN(Str :r(:$routine), Str :d(:$dir), Bool :n(:$nopager)) {

@@ -18,7 +18,7 @@ plan 3;
 subtest 'Search Type: \'Array\'', {
     # NOTE: Hardcoding 'Type' subfolder here should be avoided in the future
     # an exported variable from Documentable should be used instead.
-    my @doc-dirs = get-doc-locations() X~ 'Type';
+    my @doc-dirs = get-doc-locations.map: *.add('Type');
     my IO::Path @pod-paths;
     my Documentable @documentables;
     my Documentable @search-results;
@@ -37,7 +37,7 @@ subtest 'Search Type: \'Array\'', {
 
 subtest 'Search Type & routine: \'Map.new\'', {
     # NOTE: Hardcoding 'Type' subfolder here should be avoided in the future
-    my @doc-dirs = get-doc-locations() X~ 'Type';
+    my @doc-dirs = get-doc-locations.map: *.add('Type');
     my IO::Path @pod-paths;
     my Documentable @documentables;
     my Documentable @search-results;
