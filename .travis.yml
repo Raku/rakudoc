@@ -1,23 +1,10 @@
-env:
-  global:
-    - TMPDIR=/tmp
-    - RAKUDO_PKG_URL=https://github.com/nxadm/rakudo-pkg/releases/download/v2019.03.1/rakudo-pkg-Debian9_2019.03.1-01_amd64.deb
-
-# https://docs.travis-ci.com/user/installing-dependencies/#Installing-Packages-without-an-APT-Repository
-before_install:
-  - cd ${TMPDIR}
-  # https://github.com/nxadm/rakudo-pkg
-  - wget -O rakudo-pkg.deb ${RAKUDO_PKG_URL}
-  - sudo dpkg -i rakudo-pkg.deb
-  - export PATH=$PATH:~/.perl6/bin:/opt/rakudo-pkg/bin
-  # https://github.com/ugexe/zef
-  - git clone https://github.com/ugexe/zef.git && cd zef && perl6 -Ilib bin/zef install .
-  # Install module directly from master, no more breaking changes expected
-  - zef install https://github.com/antoniogamiz/Perl6-Documentable/archive/v2.3.1.tar.gz
+services:
+  - docker
 
 install:
-  - cd ${TRAVIS_BUILD_DIR}
-  - zef --debug --depsonly install .
+  - docker pull jjmerelo/perl6-doccer
+  - docker images
 
 script:
-  - P6DOC_TEST=1 prove -v -r -e "perl6 --ll-exception -Ilib" t
+  - docker run -t -v $TRAVIS_BUILD_DIR:/test --entrypoint=/bin/sh jjmerelo/perl6-doccer
+    ./.travis/docker-entrypoint.sh
