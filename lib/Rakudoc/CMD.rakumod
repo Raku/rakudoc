@@ -14,27 +14,39 @@ package Rakudoc::CMD {
             rakudoc, a tool for reading Raku documentation
 
             Usage:
-                rakudoc <file>
-                rakudoc [<option>...] <type>
-                rakudoc [<option>...] <type>.<routine>
-                rakudoc [<option>...] -r=<routine>
+                rakudoc    [-n]           FILE
+                rakudoc    [-n] [-d=DIR]  TYPE | FEATURE | MODULE
+                rakudoc    [-n] [-d=DIR]  TYPE.ROUTINE
+                rakudoc -r [-n] [-d=DIR]  ROUTINE
+                rakudoc -b [-d=DIR]
+                rakudoc -h
 
             Where:
-                <file>                  A Raku POD file
-                <type>                  A Raku type or class
-                <routine>               A routine or method associated with a type
+                FILE        File containing POD documentation
+                TYPE        Type or class
+                MODULE      Module in Raku's module search path
+                FEATURE     Raku langauge feature
+                ROUTINE     Routine or method associated with a type
 
             Options:
-                [-b | --build]          build a routine index
-                [-d | --dir]            manually specify a doc directory
-                [-h | --help]           print usage information
-                [-n | --nopager]        deactivate pager usage for output
+                [-d | --dir]                Specify a doc directory
+                [-n | --nopager]            Deactivate pager usage for output
+                [-r | --routine ROUTINE]    Search index for ROUTINE
+                [-h | --help]               Display this help
+                [-b | --build]              Build the search index
 
             Examples:
-                rakudoc ~/my-pod-file.rakumod
-                rakudoc IO::Spec
-                rakudoc Map.new
+                rakudoc ~/my-pod-file.rakumod       FILE
+                rakudoc IO::Spec                    TYPE
+                rakudoc JSON::Fast                  MODULE
+                rakudoc exceptions                  FEATURE
+                rakudoc Map.new                     TYPE.ROUTINE
+                rakudoc -r starts-with              ROUTINE
 
+            See also:
+                rakudoc intro
+                rakudoc pod
+                https://docs.raku.org/
             END
     }
 
