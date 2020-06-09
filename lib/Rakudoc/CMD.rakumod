@@ -50,7 +50,20 @@ package Rakudoc::CMD {
             END
     }
 
-    our proto MAIN(|) is export { * }
+    our proto MAIN(|) is export {
+
+        {*}
+
+        CATCH {
+            when X::Rakudoc {
+                .put;
+                exit 2;
+            }
+        }
+
+        # Meaningless except to t/01-cmd.t
+        True;
+    }
 
     multi MAIN(Bool :h(:$help)!, |_) {
         USAGE();
@@ -67,28 +80,22 @@ package Rakudoc::CMD {
         $use-pager = False if $nopager;
 
         if $routine {
-            my $routine-index-path = routine-index-path();
+            my $index-path = index-path();
 
-            if $routine-index-path.e && not INDEX.z {
-                my @search-results = routine-search($query, $routine-index-path).list;
+            $index-path.s or die X::Rakudoc.new:
+                :message<No index file found, build index first>;
 
-                if @search-results.elems == 1 {
+            my @search-results = routine-search($query, $index-path).list;
 
-                    if defined $dir && $dir.IO.d {
-                        MAIN("{@search-results.first}.{$query}", :d($dir), :n($nopager));
-                    } else {
-                        MAIN("{@search-results.first}.{$query}", :n($nopager));
-                    }
-                } else {
-                    say "";
-                    say "$query in:";
-                    say "";
-                    for @search-results -> $type-name {
-                        say $type-name;
-                    }
-                }
+            if @search-results.elems == 1 {
+                MAIN("{@search-results.first}.{$query}", :$nopager);
             } else {
-                say "No index file found, build index first.";
+                say "";
+                say "$query in:";
+                say "";
+                for @search-results -> $type-name {
+                    say $type-name;
+                }
             }
         }
         else {
@@ -147,33 +154,18 @@ package Rakudoc::CMD {
                     show-t-search-results(@search-results, :use-pager($use-pager));
                 }
             }
-
-            CATCH {
-                when X::Rakudoc {
-                    .put;
-                    exit 2;
-                }
-            }
-
-            True;  # Meaningless except to t/01-cmd.t
         }
     }
 
     multi MAIN(Bool :b(:$build), Str :d(:$dir)) {
-        my $routine-index-path = routine-index-path();
+        my $index-path = index-path();
 
-        if defined $dir and $dir.IO.d {
-            say "Building index...";
-            write-routine-index-file($routine-index-path, [$dir.IO]);
-            say "Index written to {$routine-index-path}";
-        } elsif defined $dir {
-            fail "$dir does not exist, or is not a directory";
-        } else {
-            say "Building index...";
-            # TODO: write-routine-index and create-routine-index should
-            # take an array of directories instead of a single one
-            write-routine-index-file($routine-index-path, get-doc-locations());
-            say "Index written to {$routine-index-path}";
-        }
+        fail "$dir does not exist, or is not a directory"
+            if $dir.defined and not $dir.?IO.d;
+
+        put "Writing index to {$index-path}...";
+        given $index-path.dirname.IO { .d or .mkdir }
+        write-index-file($index-path, $dir.?IO // |get-doc-locations);
+        put "Done.";
     }
 }

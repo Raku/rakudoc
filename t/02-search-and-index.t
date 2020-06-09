@@ -57,12 +57,12 @@ subtest 'Search Type & routine: \'Map.new\'', {
 
 
 subtest 'Build routine index', {
-    my %routine-index = create-routine-index([get-doc-locations()]);
+    my %index = create-index([get-doc-locations()]);
 
     # Check if the index contains routines from the test-docs
-    ok %routine-index{'new'};
-    ok %routine-index{'abs'};
-    ok %routine-index{'exit'};
+    ok %index{'new'};
+    ok %index{'abs'};
+    ok %index{'exit'};
 
-    nok %routine-index{'hfdusfdhasdhfj'};
+    nok %index{'hfdusfdhasdhfj'};
 }

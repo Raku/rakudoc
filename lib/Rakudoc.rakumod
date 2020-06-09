@@ -310,22 +310,22 @@ sub find-pod-files(
 #| 'Type' inside.
 #| The resulting index has the routine names as keys, each key harbors
 #| an array containing the Types the routine is associated with.
-sub create-routine-index(
+sub create-index(
     @topdirs,
     --> Hash
 ) is export {
-    my %routine-index;
+    my %index;
 
     my Documentable::Registry @registries;
 
-    for @topdirs -> $td {
+    for @topdirs».Str -> $topdir {
         my $registry = Documentable::Registry.new(
             # `Documentable::Registry`'s $topdir attribute takes a string instead
             # of an `IO::Path` currently.
-            topdir => $td.Str,
-            dirs => ['Type'],
-            verbose => False,
-            use-cache => False,
+            :$topdir,
+            :dirs(['Type']),
+            :!verbose,
+            :!use-cache,
         );
         $registry.compose;
 
@@ -333,34 +333,32 @@ sub create-routine-index(
     }
 
     for @registries -> $registry {
-        # Looping the result of `lookup`, the key only contains numbering.
-        # We only need the values
-        for $registry.lookup(Kind::Routine, :by<kind>).kv -> $k, $v {
-            #say "{$k} {$v.name} in {$v.origin.name}";
-            %routine-index.push: ($v.name => $v.origin.name);
+        for $registry.lookup(Kind::Routine, :by<kind>).list {
+            #say "{.name} in {.origin.name}";
+            %index.push: .name => .origin.name;
         }
     }
 
-    %routine-index
+    %index
 }
 
 #| Create a routine index from a given documentation directory $topdir and write
 #| it as a json file to the given $file-location
-sub write-routine-index-file(
+sub write-index-file(
     IO::Path $file-location,
-    @topdirs,
+    *@topdirs,
 ) is export {
-    spurt($file-location, to-json(create-routine-index(@topdirs)))
+    spurt($file-location, to-json(create-index(@topdirs)))
 }
 
 #| Search for a single Routine/Method/Subroutine, e.g. `split`
 sub routine-search(
     Str $routine-name,
-    IO::Path $routine-index-file
+    IO::Path $index-file
 ) is export {
-    my %routine-index = from-json(slurp($routine-index-file));
+    my %index = from-json(slurp($index-file));
 
-    return %routine-index{$routine-name}
+    return %index{$routine-name} // Empty
 }
 
 #| Print the search results. This renders the documentation if `@results == 1`

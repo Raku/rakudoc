@@ -8,7 +8,7 @@ use Rakudoc::Index;
 ### Remember to set env RAKUDOC_TEST to successfully run tests!
 ###
 
-plan 4;
+plan 4 * 2;
 
 # The following is a way to test `MAIN`s from Rakudoc::CMD directly without
 # triggering usage. The C<use Rakudoc::CMD> must be in a new lexical scope,
@@ -16,14 +16,21 @@ plan 4;
 BEGIN sub MAIN(|_) { };
 
 use IO::Capture::Simple;
-my @status;
-capture_stdout {
+{
     use Rakudoc::CMD;
 
-    @status.push: so Rakudoc::CMD::MAIN('Map', :n(True)), "Map";
-    @status.push: so Rakudoc::CMD::MAIN('Map.new', :n(True)), "Map.new";
-    @status.push: so Rakudoc::CMD::MAIN('X::IO', :n(True)), "X::IO";
-    @status.push: so Rakudoc::CMD::MAIN('Array', :n(True)), "Array";
+    for
+        \('Map', :n), / 'class Map' \N+ 'does Associative' /,
+        \('Map.new', :n), / 'method new' /,
+        \('X::IO', :n), / 'role X::IO' /,
+        \('Array', :n), / 'class Array' \N+ 'is List' /
+    -> $args, $like
+    {
+        my $result;
+        my Str $out = capture_stdout {
+            $result = Rakudoc::CMD::MAIN(|$args);
+        };
+        ok so $result, "MAIN $args.gist() reports success";
+        like $out, $like, "MAIN $args.gist() output looks good";
+    }
 }
-
-for @status -> $status, $descr { ok $status, $descr; }
