@@ -50,116 +50,112 @@ package Rakudoc::CMD {
             END
     }
 
-    our proto MAIN(|) is export {
-        {*}
-    }
+    our proto MAIN(|) is export { * }
 
-    multi MAIN(Bool :h(:$help)?) {
+    multi MAIN(Bool :h(:$help)!, |_) {
         USAGE();
 
         exit;
     }
 
-    multi MAIN(Str $pod-file where *.IO.e) {
+    multi MAIN(Str $pod-file where *.IO.e, Bool :n(:$nopager)) {
         say load-pod-to-txt($pod-file.IO);
     }
 
-    multi MAIN(Str $query, Str :d(:$dir), Bool :n(:$nopager)) {
+    multi MAIN(Str $query, Bool :r(:$routine), Str :d(:$dir), Bool :n(:$nopager)) {
         my $use-pager = True;
         $use-pager = False if $nopager;
 
-        my @doc-dirs;
+        if $routine {
+            my $routine-index-path = routine-index-path();
 
-        if defined $dir and $dir.IO.d {
-            # If directory is provided via `-d`, only look there
-            # TODO: There should be a way to detect whether the provided
-            # directory is the regular standard documentation, or an arbitrary
-            # folder containing .rakudoc files.
-            # Also the categories should be pulled from Documentable, rather
-            # than hardcoded here.
-            @doc-dirs = [$dir.IO.add('Type')];
-        } elsif defined $dir {
-            fail "$dir does not exist, or is not a directory";
-        } else {
-            # If no directory is provided, search in a given set of standard
-            # paths
-            @doc-dirs = get-doc-locations.map: *.add('Type');
+            if $routine-index-path.e && not INDEX.z {
+                my @search-results = routine-search($query, $routine-index-path).list;
+
+                if @search-results.elems == 1 {
+
+                    if defined $dir && $dir.IO.d {
+                        MAIN("{@search-results.first}.{$query}", :d($dir), :n($nopager));
+                    } else {
+                        MAIN("{@search-results.first}.{$query}", :n($nopager));
+                    }
+                } else {
+                    say "";
+                    say "$query in:";
+                    say "";
+                    for @search-results -> $type-name {
+                        say $type-name;
+                    }
+                }
+            } else {
+                say "No index file found, build index first.";
+            }
         }
+        else {
+            my @doc-dirs;
 
-        if not $query.contains('.') {
-            my IO::Path @pod-paths;
-            my Documentable @documentables;
-            my Documentable @search-results;
-
-            for @doc-dirs -> $dir {
-                @pod-paths.append: find-type-files($query, $dir);
+            if defined $dir and $dir.IO.d {
+                # If directory is provided via `-d`, only look there
+                # TODO: There should be a way to detect whether the provided
+                # directory is the regular standard documentation, or an arbitrary
+                # folder containing .rakudoc files.
+                # Also the categories should be pulled from Documentable, rather
+                # than hardcoded here.
+                @doc-dirs = [$dir.IO.add('Type')];
+            } elsif defined $dir {
+                fail "$dir does not exist, or is not a directory";
+            } else {
+                # If no directory is provided, search in a given set of standard
+                # paths
+                @doc-dirs = get-doc-locations.map: *.add('Type');
             }
 
-            @documentables = process-type-pod-files(@pod-paths);
-            @search-results = type-search($query, @documentables);
-
-            show-t-search-results(@search-results, :use-pager($use-pager));
-
-        } else {
-            # e.g. split `Map.new` into `Map` and `new`
-            my @squery = $query.split('.');
-
-            if not @squery.elems == 2 {
-                fail 'Malformed input, example: Map.elems';
-            } else {
+            if not $query.contains('.') {
                 my IO::Path @pod-paths;
                 my Documentable @documentables;
                 my Documentable @search-results;
 
                 for @doc-dirs -> $dir {
-                    @pod-paths.append: find-type-files(@squery[0], $dir);
+                    @pod-paths.append: find-type-files($query, $dir);
                 }
 
                 @documentables = process-type-pod-files(@pod-paths);
-                @search-results = type-search(@squery[0],
-                                              :routine(@squery[1]),
-                                              @documentables);
+                @search-results = type-search($query, @documentables);
 
                 show-t-search-results(@search-results, :use-pager($use-pager));
-            }
-        }
 
-        CATCH {
-            when X::Rakudoc {
-                .put;
-                exit 2;
-            }
-        }
-
-        True;  # Meaningless except to t/01-cmd.t
-    }
-
-    multi MAIN(Str :r(:$routine), Str :d(:$dir), Bool :n(:$nopager)) {
-        my $use-pager = True;
-        $use-pager = False if $nopager;
-
-        my $routine-index-path = routine-index-path();
-
-        if $routine-index-path.e && not INDEX.z {
-            my @search-results = routine-search($routine, $routine-index-path).list;
-
-            if @search-results.elems == 1 {
-
-                if defined $dir && $dir.IO.d {
-                    MAIN("{@search-results.first}.{$routine}", :d($dir), :n($nopager));
-                } else {
-                    MAIN("{@search-results.first}.{$routine}", :n($nopager));
-                }
             } else {
-                say "";
-                say "$routine in:";
-                say "";
-                for @search-results -> $type-name {
-                    say $type-name;
+                # e.g. split `Map.new` into `Map` and `new`
+                my @squery = $query.split('.');
+
+                if not @squery.elems == 2 {
+                    fail 'Malformed input, example: Map.elems';
+                } else {
+                    my IO::Path @pod-paths;
+                    my Documentable @documentables;
+                    my Documentable @search-results;
+
+                    for @doc-dirs -> $dir {
+                        @pod-paths.append: find-type-files(@squery[0], $dir);
+                    }
+
+                    @documentables = process-type-pod-files(@pod-paths);
+                    @search-results = type-search(@squery[0],
+                                                  :routine(@squery[1]),
+                                                  @documentables);
+
+                    show-t-search-results(@search-results, :use-pager($use-pager));
                 }
             }
-        } else {
-            say "No index file found, build index first.";
+
+            CATCH {
+                when X::Rakudoc {
+                    .put;
+                    exit 2;
+                }
+            }
+
+            True;  # Meaningless except to t/01-cmd.t
         }
     }
 
