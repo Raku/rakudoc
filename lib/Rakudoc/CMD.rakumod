@@ -79,80 +79,73 @@ package Rakudoc::CMD {
         my $use-pager = True;
         $use-pager = False if $nopager;
 
+        my @doc-dirs;
+
+        fail "$dir does not exist, or is not a directory"
+            if defined $dir and not $dir.IO.d;
+
+        # If directory is provided via `-d`, only look there
+        # TODO: There should be a way to detect whether the provided
+        # directory is the regular standard documentation, or an arbitrary
+        # folder containing .rakudoc files.
+        my @dirs = $dir ?? $dir !! get-doc-locations;
+        my @subdirs = $routine ?? 'Type' !! Kind.enums.keys;
+
+        @doc-dirs = cross :with({$^a.add($^b)}), @dirs, @subdirs;
+
+        my $search-results;
         if $routine {
             my $index-path = index-path();
 
             $index-path.s or die X::Rakudoc.new:
                 :message<No index file found, build index first>;
 
-            my @search-results = routine-search($query, $index-path).list;
-
-            if @search-results.elems == 1 {
-                MAIN("{@search-results.first}.{$query}", :$nopager);
-            } else {
-                say "";
-                say "$query in:";
-                say "";
-                for @search-results -> $type-name {
-                    say $type-name;
-                }
-            }
+            # Map the Str result(s) from index into Documentables
+            $search-results = map { |type-routine-query($_) },
+                                routine-search($query, $index-path);
         }
         else {
-            my @doc-dirs;
-
-            if defined $dir and $dir.IO.d {
-                # If directory is provided via `-d`, only look there
-                # TODO: There should be a way to detect whether the provided
-                # directory is the regular standard documentation, or an arbitrary
-                # folder containing .rakudoc files.
-                # Also the categories should be pulled from Documentable, rather
-                # than hardcoded here.
-                @doc-dirs = [$dir.IO.add('Type')];
-            } elsif defined $dir {
-                fail "$dir does not exist, or is not a directory";
+            if $query.contains('.') {
+                $search-results = type-routine-query($query);
             } else {
-                # If no directory is provided, search in a given set of standard
-                # paths
-                @doc-dirs = get-doc-locations.map: *.add('Type');
+                $search-results = single-query($query);
+            }
+        }
+
+        show-search-results($search-results, :$use-pager);
+
+        return True;  # Meaningless except to t/01-cmd.t
+
+        sub single-query($query) {
+            my IO::Path @pod-paths;
+            my Documentable @documentables;
+
+            for @doc-dirs -> $dir {
+                @pod-paths.append: find-type-files($query, $dir);
             }
 
-            if not $query.contains('.') {
+            @documentables = process-type-pod-files(@pod-paths);
+            type-search($query, @documentables);
+        }
+
+        sub type-routine-query($query) {
+            # e.g. split `Map.new` into `Map` and `new`
+            my @squery = $query.split('.');
+
+            if not @squery.elems == 2 {
+                fail 'Malformed input, example: Map.elems';
+            } else {
                 my IO::Path @pod-paths;
                 my Documentable @documentables;
-                my Documentable @search-results;
 
                 for @doc-dirs -> $dir {
-                    @pod-paths.append: find-type-files($query, $dir);
+                    @pod-paths.append: find-type-files(@squery[0], $dir);
                 }
 
                 @documentables = process-type-pod-files(@pod-paths);
-                @search-results = type-search($query, @documentables);
-
-                show-t-search-results(@search-results, :use-pager($use-pager));
-
-            } else {
-                # e.g. split `Map.new` into `Map` and `new`
-                my @squery = $query.split('.');
-
-                if not @squery.elems == 2 {
-                    fail 'Malformed input, example: Map.elems';
-                } else {
-                    my IO::Path @pod-paths;
-                    my Documentable @documentables;
-                    my Documentable @search-results;
-
-                    for @doc-dirs -> $dir {
-                        @pod-paths.append: find-type-files(@squery[0], $dir);
-                    }
-
-                    @documentables = process-type-pod-files(@pod-paths);
-                    @search-results = type-search(@squery[0],
-                                                  :routine(@squery[1]),
-                                                  @documentables);
-
-                    show-t-search-results(@search-results, :use-pager($use-pager));
-                }
+                type-search(@squery[0],
+                                              :routine(@squery[1]),
+                                              @documentables);
             }
         }
     }

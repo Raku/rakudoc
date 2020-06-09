@@ -209,13 +209,13 @@ sub routine-search(
 ) is export {
     my %index = from-json(slurp($index-file));
 
-    return %index{$routine-name} // Empty
+    return map { join '.', $_, $routine-name }, |%index{$routine-name} // Empty
 }
 
 #| Print the search results. This renders the documentation if `@results == 1`
 #| or lists names and associated types if `@results > 1`.
 #| $use-pager enables/disables the usage of the system pager
-sub show-t-search-results(Documentable @results, :$use-pager) is export {
+sub show-search-results(@results, :$use-pager) is export {
     if @results.elems == 1 {
         if $use-pager {
             # Use `less` on Linux, and `more` on windows
@@ -229,8 +229,10 @@ sub show-t-search-results(Documentable @results, :$use-pager) is export {
         X::Rakudoc.new(:message("No matches in [{get-doc-locations.join(', ')}]")).throw;
     } else {
         say 'Multiple matches:';
-        for @results -> $r {
-            say "    {$r.subkinds} {$r.name}";
+        for @results {
+            # `.origin.name` gives us the correct name of the pod our
+            # documentation is defined in originally
+            say join(' ', .?origin.name // (), .subkinds, .name).indent(4);
         }
     }
 }
