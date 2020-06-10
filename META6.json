@@ -27,7 +27,7 @@
     "raku" : "6.d",
     "resources" : [ ],
     "tags": [ ],
-    "source-url" : "https://github.com/Raku/rakudoc",
+    "source-url" : "https://github.com/Raku/rakudoc.git",
     "support" : {
         "bugtracker" : "https://github.com/Raku/rakudoc/issues"
     }
