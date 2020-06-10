@@ -6,10 +6,11 @@
         "Joel D. S. <@noisegul>",
         "Tim Siegel <github:softmoth>"
     ],
-    "version" : "0.1.1",
+    "version" : "0.1.2",
     "description" : "A tool for reading Raku documentation",
     "license" : "Artistic-2.0",
     "provides" : {
+        "rakudoc" : "bin/rakudoc",
         "Rakudoc" : "lib/Rakudoc.rakumod",
         "Rakudoc::CMD" : "lib/Rakudoc/CMD.rakumod",
         "Rakudoc::Index" : "lib/Rakudoc/Index.rakumod",
