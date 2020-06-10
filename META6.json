@@ -3,7 +3,8 @@
     "name" : "rakudoc",
     "auth" : "github:Raku",
     "authors" : [
-        "Joel D. S. <@noisegul>"
+        "Joel D. S. <@noisegul>",
+        "Tim Siegel <github:softmoth>"
     ],
     "version" : "0.1.1",
     "description" : "A tool for reading Raku documentation",
@@ -26,5 +27,8 @@
     "raku" : "6.d",
     "resources" : [ ],
     "tags": [ ],
-    "source-url" : "https://github.com/Raku/rakudoc"
+    "source-url" : "https://github.com/Raku/rakudoc",
+    "support" : {
+        "bugtracker" : "https://github.com/Raku/rakudoc/issues"
+    }
 }
