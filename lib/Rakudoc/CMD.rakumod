@@ -9,7 +9,7 @@ use JSON::Fast;
 package Rakudoc::CMD {
     my $PROGRAM-NAME = "rakudoc";
 
-    sub USAGE() {
+    sub USAGE() is export {
         say q:to/END/;
             rakudoc, a tool for reading Raku documentation
 
@@ -157,7 +157,7 @@ package Rakudoc::CMD {
         }
     }
 
-    multi MAIN(Bool :b(:$build), Str :d(:$dir)) {
+    multi MAIN(Bool :b(:$build)!, Str :d(:$dir)) {
         my $index-path = index-path();
 
         fail "$dir does not exist, or is not a directory"
