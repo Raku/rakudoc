@@ -13,163 +13,14 @@ use Path::Finder;
 
 unit module Rakudoc;
 
-constant DEBUG      = %*ENV<RAKUDOC_DEBUG>;
-constant INTERACT   = %*ENV<RAKUDOC_INTERACT>;
-constant DOC-DIR-NAMES = DOCUMENTABLE-DIRS X~ "{$*SPEC.dir-sep}";
 constant DOC-SUFFIX = '.pod6';  # As used in the main Raku/doc project
 
-# die with printing a backtrace
 my class X::Rakudoc is Exception {
     has $.message;
     multi method gist(X::Rakudoc:D:) {
         self.message;
     }
 }
-
-sub module-names(Str $modulename) returns Seq is export {
-    return $modulename.split('::').join('/') X~ <.rakumod .rakudoc .pm .pm6 .pod .pod6>;
-}
-
-sub locate-module(Str $modulename) is export {
-    my @candidates = search-paths() X~ DOC-DIR-NAMES X~ module-names($modulename).list;
-    DEBUG and warn :@candidates.perl;
-    my $m = @candidates.first: *.IO.f;
-
-    unless $m.defined {
-        # not "core" pod now try for panda or zef installed module
-        $m = locate-curli-module($modulename);
-    }
-
-    unless $m.defined {
-        my $message = join "\n",
-        "Cannot locate $modulename in any of the following paths:",
-        search-paths.map({"  $_"});
-        X::Rakudoc.new(:$message).throw;
-    }
-
-    return $m;
-}
-
-sub is-pod(IO::Path $p) returns Bool {
-    if not open($p).lines.grep( /^'=' | '#|' | '#='/ ) {
-        return False
-    } else {
-        return True
-    }
-}
-
-sub disambiguate-f-search($docee, %data) is export {
-    my %found;
-
-    for <routine method sub> -> $pref {
-        my $ndocee = $pref ~ " " ~ $docee;
-
-        if %data{$ndocee} {
-            my @types = %data{$ndocee}.values>>.Str.grep({ $^v ~~ /^ 'Type' / });
-            @types = [gather @types.deepmap(*.take)].unique.list;
-            @types.=grep({!/$pref/});
-            %found{$ndocee}.push: @types X~ $docee;
-        }
-    }
-
-    my $final-docee;
-    my $total-found = %found.values.map( *.elems ).sum;
-    if ! $total-found {
-        fail "No documentation found for a routine named '$docee'";
-    } elsif $total-found == 1 {
-        $final-docee = %found.values[0];
-    } else {
-        say "We have multiple matches for '$docee'\n";
-
-        my %options;
-        for %found.keys -> $key {
-            %options{$key}.push: %found{$key};
-        }
-        my @opts = %options.values.map({ @($^a) });
-
-        # 's' => Type::Supply.grep, ... | and we specifically want the %found values,
-        #                               | not the presentation-versions in %options
-        if INTERACT {
-            my $total-elems = %found.values.map( +* ).sum;
-            if +%found.keys < $total-elems {
-                my @prefixes = (1..$total-elems) X~ ") ";
-                say "\t" ~ ( @prefixes Z~ @opts ).join("\n\t") ~ "\n";
-            } else {
-                say "\t" ~ @opts.join("\n\t") ~ "\n";
-            }
-            $final-docee = prompt-with-options(%options, %found);
-        } else {
-            say "\t" ~ @opts.join("\n\t") ~ "\n";
-            exit 1;
-        }
-    }
-
-    return $final-docee;
-}
-
-sub prompt-with-options(%options, %found) {
-    my $final-docee;
-
-    my %prefixes = do for %options.kv -> $k,@o { @o.map(*.comb[0].lc) X=> %found{$k} };
-
-    if %prefixes.values.grep( -> @o { +@o > 1 } ) {
-        my (%indexes,$base-idx);
-        $base-idx = 0;
-        for %options.kv -> $k,@o {
-            %indexes.push: @o>>.map({ ++$base-idx }) Z=> @(%found{$k});
-        }
-        %prefixes = %indexes;
-    }
-
-    my $prompt-text = "Narrow your choice? ({ %prefixes.keys.sort.join(', ') }, or !{ '/' ~ 'q' if !%prefixes<q> } to quit): ";
-
-    while prompt($prompt-text).words -> $word {
-        if $word  ~~ '!' or ($word ~~ 'q' and !%prefixes<q>) {
-            exit 1;
-        } elsif $word ~~ /:i $<choice> = [ @(%prefixes.keys) ] / {
-            $final-docee = %prefixes{ $<choice>.lc };
-            last;
-        } else {
-            say "$word doesn't seem to apply here.\n";
-            next;
-        }
-    }
-
-    return $final-docee;
-}
-
-sub locate-curli-module($module) {
-    my $cu = try $*REPO.need(CompUnit::DependencySpecification.new(:short-name($module)));
-    unless $cu.DEFINITE {
-        fail "No such type '$module'";
-        #exit 1;
-    }
-    return ~ $cu.repo.prefix.child('sources/' ~ $cu.repo-id);
-}
-
-# see: Zef::Client.list-installed()
-# Eventually replace with CURI.installed()
-# https://github.com/rakudo/rakudo/blob/8d0fa6616bab6436eab870b512056afdf5880e08/src/core/CompUnit/Repository/Installable.pm#L21
-sub list-installed() is export {
-    my @curs       = $*REPO.repo-chain.grep(*.?prefix.?e);
-    my @repo-dirs  = @curs>>.prefix;
-    my @dist-dirs  = |@repo-dirs.map(*.child('dist')).grep(*.e);
-    my @dist-files = |@dist-dirs.map(*.IO.dir.grep(*.IO.f).Slip);
-
-    my $dists := gather for @dist-files -> $file {
-        if try { Distribution.new( |%(from-json($file.IO.slurp)) ) } -> $dist {
-            my $cur = @curs.first: {.prefix eq $file.parent.parent}
-            my $dist-with-prefix = $dist but role :: { has $.repo-prefix = $cur.prefix };
-            take $dist-with-prefix;
-        }
-    }
-}
-
-# NOTE: It appears that `Documentable` can be used instead of
-# the more specific `Documentable::Primary`. Noting this here in case
-# this circumstance changes in the future.
-# The following uses `Documentable` to annotate any documentable
-# objects.
 
 #| Receive a list of paths to pod files and process them, return an array of
 #| processed Documentable objects
@@ -358,13 +209,13 @@ sub routine-search(
 ) is export {
     my %index = from-json(slurp($index-file));
 
-    return %index{$routine-name} // Empty
+    return map { join '.', $_, $routine-name }, |%index{$routine-name} // Empty
 }
 
 #| Print the search results. This renders the documentation if `@results == 1`
 #| or lists names and associated types if `@results > 1`.
 #| $use-pager enables/disables the usage of the system pager
-sub show-t-search-results(Documentable @results, :$use-pager) is export {
+sub show-search-results(@results, :$use-pager) is export {
     if @results.elems == 1 {
         if $use-pager {
             # Use `less` on Linux, and `more` on windows
@@ -378,32 +229,10 @@ sub show-t-search-results(Documentable @results, :$use-pager) is export {
         X::Rakudoc.new(:message("No matches in [{get-doc-locations.join(', ')}]")).throw;
     } else {
         say 'Multiple matches:';
-        for @results -> $r {
-            say "    {$r.subkinds} {$r.name}";
-        }
-    }
-}
-
-#| Print the search results for a routine search. This renders the documentation
-#| if `@results == 1` or lists names and associated types if `@results > 1`.
-#| $use-pager enables/disables the usage of the system pager
-sub show-r-search-results(Documentable @results, :$use-pager) is export {
-    if @results.elems == 1 {
-        if $use-pager {
-            my $pager = %*ENV<PAGER> // ($*DISTRO.is-win ?? 'more' !! 'less');
-
-            shell("cat <<'RAKUDOC_HACK_END' | $pager\n{pod2text(@results.first.pod)}\nRAKUDOC_HACK_END");
-        } else {
-            say pod2text(@results.first.pod);
-        }
-    } elsif @results.elems < 1 {
-        X::Rakudoc.new(:message("No matches in [{get-doc-locations.join(', ')}]")).throw;
-    } else {
-        say 'Multiple matches:';
-        for @results -> $r {
+        for @results {
             # `.origin.name` gives us the correct name of the pod our
             # documentation is defined in originally
-            say "    {$r.origin.name} {$r.subkinds} {$r.name}";
+            say join(' ', .?origin.name // (), .subkinds, .name).indent(4);
         }
     }
 }

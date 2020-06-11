@@ -3,12 +3,14 @@
     "name" : "rakudoc",
     "auth" : "github:Raku",
     "authors" : [
-        "Joel D. S. <@noisegul>"
+        "Joel D. S. <@noisegul>",
+        "Tim Siegel <github:softmoth>"
     ],
-    "version" : "0.1.1",
+    "version" : "0.1.2",
     "description" : "A tool for reading Raku documentation",
     "license" : "Artistic-2.0",
     "provides" : {
+        "rakudoc" : "bin/rakudoc",
         "Rakudoc" : "lib/Rakudoc.rakumod",
         "Rakudoc::CMD" : "lib/Rakudoc/CMD.rakumod",
         "Rakudoc::Index" : "lib/Rakudoc/Index.rakumod",
@@ -26,5 +28,8 @@
     "raku" : "6.d",
     "resources" : [ ],
     "tags": [ ],
-    "source-url" : "https://github.com/Raku/rakudoc"
+    "source-url" : "https://github.com/Raku/rakudoc.git",
+    "support" : {
+        "bugtracker" : "https://github.com/Raku/rakudoc/issues"
+    }
 }

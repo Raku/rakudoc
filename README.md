@@ -1,10 +1,8 @@
-# rakudoc [![Build Status](https://travis-ci.org/Raku/rakudoc.svg?branch=master)](https://travis-ci.org/Raku/rakudoc)
+# rakudoc [![Build Status](https://travis-ci.com/Raku/rakudoc.svg?branch=master)](https://travis-ci.com/Raku/rakudoc)
 
 rakudoc, a tool for reading Raku documentation
 
 ```
-rakudoc, a tool for reading Raku documentation
-
 Usage:
     rakudoc    [-n]           FILE
     rakudoc    [-n] [-d=DIR]  TYPE | FEATURE | MODULE
