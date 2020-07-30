@@ -1,35 +1,36 @@
 {
-    "perl" : "6.d",
-    "name" : "rakudoc",
-    "auth" : "github:Raku",
-    "authors" : [
-        "Joel D. S. <@noisegul>",
-        "Tim Siegel <github:softmoth>"
-    ],
-    "version" : "0.1.2",
-    "description" : "A tool for reading Raku documentation",
-    "license" : "Artistic-2.0",
-    "provides" : {
-        "rakudoc" : "bin/rakudoc",
-        "Rakudoc" : "lib/Rakudoc.rakumod",
-        "Rakudoc::CMD" : "lib/Rakudoc/CMD.rakumod",
-        "Rakudoc::Index" : "lib/Rakudoc/Index.rakumod",
-        "Rakudoc::Utils" : "lib/Rakudoc/Utils.rakumod"
-    },
-    "depends" : [
-        "JSON::Fast:ver<0.9.18+>",
-        "Path::Finder:ver<0.2.0+>",
-        "Documentable:ver<1.2.5+>",
-        "Pod::Load:ver<0.5.2+>"],
-    "build-depends" : [ ],
-    "test-depends" : [
-        "IO::Capture::Simple:ver<0.0.1+>"
-    ],
-    "raku" : "6.d",
-    "resources" : [ ],
-    "tags": [ ],
-    "source-url" : "https://github.com/Raku/rakudoc.git",
-    "support" : {
-        "bugtracker" : "https://github.com/Raku/rakudoc/issues"
-    }
+  "api": "1",
+  "auth": "github:Raku",
+  "authors": [
+    "Joel D. S. <@noisegul>",
+    "Tim Siegel <github:softmoth>"
+  ],
+  "build-depends": [
+  ],
+  "depends": [
+    "Documentable:ver<1.2.5+>"
+  ],
+  "description": "A tool for reading Raku documentation",
+  "license": "Artistic-2.0",
+  "name": "Rakudoc",
+  "perl": "6.d",
+  "provides": {
+    "Pod::Cache": "lib/Pod/Cache.rakumod",
+    "Rakudoc": "lib/Rakudoc.rakumod",
+    "Rakudoc::CMD": "lib/Rakudoc/CMD.rakumod"
+  },
+  "raku": "6.d",
+  "resources": [
+  ],
+  "source-url": "https://github.com/Raku/rakudoc.git",
+  "support": {
+    "bugtracker": "https://github.com/Raku/rakudoc/issues"
+  },
+  "tags": [
+  ],
+  "test-depends": [
+    "IO::Capture::Simple:ver<0.0.1+>",
+    "File::Temp:ver<0.0.8+>"
+  ],
+  "version": "0.1.9"
 }
