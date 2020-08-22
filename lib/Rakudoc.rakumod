@@ -36,6 +36,7 @@ sub process-type-pod-files(
             # because of that we take the first element
             pod => load($f).first,
             filename => $f.basename.IO.extension('').Str,
+            source-path => $f.Str,
         );
 
         @results.push($documentable);
