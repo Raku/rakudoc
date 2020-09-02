@@ -6,6 +6,9 @@ set -x
 apk update
 apk upgrade
 
+# Install node.js - dependency of Documentable
+apk add nodejs
+
 # Report status
 raku --version
 which zef
