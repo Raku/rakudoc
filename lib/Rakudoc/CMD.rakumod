@@ -91,7 +91,7 @@ package Rakudoc::CMD {
         my @dirs = $dir ?? $dir !! get-doc-locations;
         my @subdirs = $routine ?? 'Type' !! Kind.enums.keys;
 
-        @doc-dirs = cross :with({$^a.add($^b)}), @dirs, @subdirs;
+        @doc-dirs = cross :with({$^a.IO.add($^b)}), @dirs, @subdirs;
 
         my $search-results;
         if $routine {
