@@ -15,6 +15,7 @@
   "name": "Rakudoc",
   "perl": "6.d",
   "provides": {
+    "Pod::Cache": "lib/Pod/Cache.rakumod",
     "Rakudoc": "lib/Rakudoc.rakumod",
     "Rakudoc::CMD": "lib/Rakudoc/CMD.rakumod"
   },

@@ -34,7 +34,7 @@ multi MAIN(
     my $text = @docs.join("\n\n")
         or die X::Rakudoc.new: :message("No results for $request");
 
-    print $text;
+    put $text;
 }
 
 multi MAIN(Bool :h(:$help)!, |_) {

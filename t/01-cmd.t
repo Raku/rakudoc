@@ -1,10 +1,12 @@
 use Test;
 
 %*ENV<RAKUDOC_TEST> = '1';
+%*ENV<RAKUDOC> = 't/testdata/mini-doc/test-doc';
 
 my @tests =
     \('test-no-match'), [ False, / ^ $ /, / No .* 'test-no-match' / ],
     \(:help), [ True, / ^ Usage /, / ^ $ /],
+    \('Map'), [ True, / 'class Map' \N+ 'does Associative' / ],
     ;
 
 plan +@tests / 2;
@@ -16,14 +18,14 @@ BEGIN sub MAIN(|) { };
 
 for @tests -> $args, $like {
     subtest "MAIN {$args.gist}" => {
-        plan 3;
         my ($result-is, $out-like, $err-like) = @$like;
+        plan $err-like.defined ?? 3 !! 2;
 
         my ($result, $out, $err) = run-test $args;
 
         is $result, $result-is, "returns $result-is";
         like $out, $out-like, "output like {$out-like.gist}";
-        like $err, $err-like, "output like {$err-like.gist}";
+        like $err, $_, "output like {.gist}" with $err-like;
     }
 }
 
