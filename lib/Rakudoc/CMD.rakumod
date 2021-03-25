@@ -23,18 +23,30 @@ our proto MAIN(|) is export {
     True;
 }
 
+sub display(*@docs) {
+    my $text = @docs.join("\n\n{'=' x 78}\n");;
+    my $pager = $*OUT.t && [//] |%*ENV<RAKUDOC_PAGER PAGER>, 'more';
+    if $pager {
+        # TODO Use Shell::WordSplit or whatever is out there; for now this
+        # makes a simple 'less -Fr' work
+        $pager = run :in, |$pager.comb(/\S+/);
+        $pager.in.spurt($text, :close);
+    }
+    else {
+        put $text;
+    }
+}
+
 multi MAIN(
     #| Examples: 'Map'
     $query,
 ) {
     my $rakudoc = Rakudoc.new;
     my $request = $rakudoc.request: $query;
-    my @docs = $rakudoc.search: $request;
-
-    my $text = @docs.join("\n\n")
+    my @docs = $rakudoc.search: $request
         or die X::Rakudoc.new: :message("No results for $request");
 
-    put $text;
+    display @docs;
 }
 
 multi sub MAIN(
