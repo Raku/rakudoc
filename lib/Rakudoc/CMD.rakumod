@@ -37,6 +37,12 @@ multi MAIN(
     put $text;
 }
 
+multi sub MAIN(
+    Bool :V(:$version)!,
+) {
+    put "$*PROGRAM :auth<{Rakudoc.^auth}>:api<{Rakudoc.^api}>:ver<{Rakudoc.^ver}>";
+}
+
 multi MAIN(Bool :h(:$help)!, |_) {
     put $*USAGE;
 }
