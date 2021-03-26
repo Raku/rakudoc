@@ -1,18 +1,6 @@
-# General
-*.swp
-*~
-
-# OS
-.DS_store
-
-# Perl6
-.precomp
-lib/.precomp
-precompiled
-.pod-cache
-
-# p6doc
-p6doc-index.json
-
-*.data
+# Rakudoc
+rakudoc-cache/
 /Rakudoc-[0-9]*
+
+# Raku
+.precomp/

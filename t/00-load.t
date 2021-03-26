@@ -1,12 +1,8 @@
-use v6.d;
-
 use Test;
 
-plan 1;
+plan 2;
 
-subtest 'Core', {
-    use-ok('Rakudoc');
-    use-ok('Rakudoc::CMD');
-    use-ok('Rakudoc::Index');
-    use-ok('Rakudoc::Utils');
-}
+use-ok('Rakudoc');
+use-ok('Rakudoc::CMD');
+
+# vim:ft=raku sw=4 et:
