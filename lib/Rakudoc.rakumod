@@ -97,9 +97,11 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
     }
 
     method search-doc-sources($str) {
+        my $fragment = reduce { $^a.add($^b) }, '.'.IO, | $str.split('::');
+
         map { Doc::Documentable.new: :rakudoc(self), :origin($_) },
         grep *.e,
-        map -> $dir, $ext { $dir.add($str).extension(:0parts, $ext) },
+        map -> $dir, $ext { $dir.add($fragment).extension(:0parts, $ext) },
         flat @!doc-sources.map({
                 | .dir(:test(*.starts-with('.').not)).grep(*.d)
             }) X <pod6 rakudoc>

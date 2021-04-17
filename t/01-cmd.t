@@ -7,6 +7,7 @@ my @tests =
     \('test-no-match'), [ False, / ^ $ /, / No .* 'test-no-match' / ],
     \(:help), [ True, / ^ Usage /, / ^ $ /],
     \('Map'), [ True, / 'class Map' \N+ 'does Associative' / ],
+    \('X::IO'), [ True, / 'role X::IO does X::OS' / ],
     ;
 
 plan +@tests / 2;
