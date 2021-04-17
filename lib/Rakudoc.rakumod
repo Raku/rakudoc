@@ -7,6 +7,8 @@ my class X::Rakudoc is Exception {
     has $.message;
 }
 
+my class X::Rakudoc::BadQuery is X::Rakudoc {}
+
 class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
     has @.doc-sources;
     has $.data-dir;
@@ -46,10 +48,14 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
     }
 
     class Doc::Documentable does Doc {
+        has $.def;
         has $!documentable;
 
         method pod {
-            $.documentable.pod;
+            my @pod;
+            @pod = $.documentable.defs.grep({.name eq $!def}).map(*.pod)
+                if $!def;
+            @pod || $.documentable.pod;
         }
         method gist {
             "Doc(*{$!origin.absolute})"
@@ -81,25 +87,55 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
 
     class Request::Name does Request {
         has $.name;
-        method Str { "'$.name'" }
+        has $.def;
+        method Str { "'{$.name}{'.' ~ $.def if $.def}'" }
+    }
+
+    class Request::Def does Request {
+        has $.def;
+        method Str { "'.{$.def}'" }
+    }
+
+    grammar Request::Grammar {
+        token TOP { <module> <definition>? | <definition> }
+        token module { <-[\s.]> + }
+        token definition { '.' <( <-[\s.]> + )> }
     }
 
     method request(Str $query) {
-        Request::Name.new: :rakudoc(self), :name($query);
+        Request::Grammar.new.parse($query)
+            or die X::Rakudoc::BadQuery.new: :message("unrecognized query: $query");
+
+        if $/<module> {
+            Request::Name.new: :name($/<module>), :def($/<definition>)
+        }
+        else {
+            Request::Def.new: :def($/<definition>)
+        }
     }
 
-    method search(Request $_) {
-        when Request::Name {
-            # Names can match either a doc file or an installed module
-            flat self.search-doc-sources($_), self.search-compunits($_)
-                given .name;
+    method search(Request $req) {
+        given $req {
+            when Request::Name {
+                # Names can match either a doc file or an installed module
+                flat
+                    self.search-doc-sources($req.name).map({
+                        Doc::Documentable.new: :rakudoc(self),
+                            :origin($_), :def($req.def)
+                    }),
+                    self.search-compunits($req.name)
+            }
+
+            when Request::Def {
+                note "NYI search by method/routine definition";
+                Empty
+            }
         }
     }
 
     method search-doc-sources($str) {
         my $fragment = reduce { $^a.add($^b) }, '.'.IO, | $str.split('::');
 
-        map { Doc::Documentable.new: :rakudoc(self), :origin($_) },
         grep *.e,
         map -> $dir, $ext { $dir.add($fragment).extension(:0parts, $ext) },
         flat @!doc-sources.map({

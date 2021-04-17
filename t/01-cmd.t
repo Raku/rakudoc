@@ -8,6 +8,7 @@ my @tests =
     \(:help), [ True, / ^ Usage /, / ^ $ /],
     \('Map'), [ True, / 'class Map' \N+ 'does Associative' / ],
     \('X::IO'), [ True, / 'role X::IO does X::OS' / ],
+    \('Hash.classify-list'), [ True, / 'method classify-list' / ],
     ;
 
 plan +@tests / 2;
