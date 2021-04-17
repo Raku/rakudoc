@@ -46,7 +46,7 @@ multi MAIN(
     my @docs = $rakudoc.search: $request
         or die X::Rakudoc.new: :message("No results for $request");
 
-    display @docs;
+    display @docs.map: { $rakudoc.render($_) };
 }
 
 multi sub MAIN(

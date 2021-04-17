@@ -36,6 +36,49 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
         has $.section;
     }
 
+    role Doc {
+        has $.rakudoc;
+        has $.name;
+        has $.origin;
+
+        method pod { ... }
+        method gist { ... }
+    }
+
+    class Doc::Documentable does Doc {
+        has $!documentable;
+
+        method pod {
+            $.documentable.pod;
+        }
+        method gist {
+            "Doc(*{$!origin.absolute})"
+        }
+        method filename {
+            ~ $!origin.basename.IO.extension('', :parts(1))
+        }
+        method documentable {
+            return $_ with $!documentable;
+            my $pod = $!rakudoc.cache.pod($!origin.absolute);
+
+            die join "\n",
+                    "Unexpected: doc pod '$.origin' has multiple elements:",
+                    |$pod.pairs.map(*.raku)
+                if $pod.elems > 1;
+
+            # Documentable is strict about Pod contents currently, and will
+            # probably throw (X::Adhoc) for anything that isn't in the main
+            # doc repo.
+            # TODO Add more specific error handling & warning text
+            #CATCH { default { } }
+
+            $!documentable = Documentable::Primary.new:
+                :pod($pod.first),
+                :$.filename,
+                :source-path($!origin.absolute);
+        }
+    }
+
     class Request::Name does Request {
         has $.name;
         method Str { "'$.name'" }
@@ -51,11 +94,10 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
             flat self.search-doc-sources($_), self.search-compunits($_)
                 given .name;
         }
-
     }
 
     method search-doc-sources($str) {
-        map { pod2text self.cache.pod($_) },
+        map { Doc::Documentable.new: :rakudoc(self), :origin($_) },
         grep *.e,
         map -> $dir, $ext { $dir.add($str).extension(:0parts, $ext) },
         flat @!doc-sources.map({
@@ -67,6 +109,9 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
         Empty
     }
 
+    method render(Doc $doc) {
+        join "\n\n", map { pod2text($_).trim ~ "\n" }, $doc.pod
+    }
 
     method cache {
         return $!cache if $!cache;
