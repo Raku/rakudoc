@@ -85,6 +85,32 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
         }
     }
 
+    class Doc::CompUnit does Doc {
+        has $.def;
+
+        method !source {
+            my $prefix = $!origin.repo.prefix;
+            my $source = $!origin.distribution.meta<source>;
+            if $prefix && $source && "$prefix/sources/$source".IO.e {
+                "$prefix/sources/$source".IO.slurp
+            }
+            else {
+                ''
+            }
+        }
+        method pod {
+            $!rakudoc.cache.pod($!origin.handle) || self!source
+            # TODO Handle $.def
+            # TODO Find docs in resources/doc
+        }
+        method gist {
+            "Doc({$!origin.repo.prefix} {$!origin})"
+        }
+        method filename {
+            ~ $!origin
+        }
+    }
+
     class Request::Name does Request {
         has $.name;
         has $.def;
@@ -123,7 +149,10 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
                         Doc::Documentable.new: :rakudoc(self),
                             :origin($_), :def($req.def)
                     }),
-                    self.search-compunits($req.name)
+                    self!locate-curli-module(~$req.name).map({
+                        Doc::CompUnit.new: :rakudoc(self),
+                            :origin($_), :def($req.def);
+                    })
             }
 
             when Request::Def {
@@ -141,10 +170,6 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
         flat @!doc-sources.map({
                 | .dir(:test(*.starts-with('.').not)).grep(*.d)
             }) X <pod6 rakudoc>
-    }
-
-    method search-compunits($str) {
-        Empty
     }
 
     method render(Doc $doc) {
@@ -186,5 +211,11 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
             ;
 
         @candidates.first(*.f) // @candidates.first;
+    }
+
+    method !locate-curli-module($short-name) {
+        # TODO This is only the first one; keep on searching somehow?
+        my $cu = try $*REPO.need(CompUnit::DependencySpecification.new: :$short-name);
+        $cu // Empty
     }
 }
