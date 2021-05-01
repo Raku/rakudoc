@@ -52,11 +52,11 @@ subset Directories of Str;
 #subset Directory of Positional where { all($_) ~~ Str };
 
 multi MAIN(
-    #| Example: 'Map', 'IO::Path', 'IO::Path.'
+    #| Example: 'Map', 'IO::Path.add', '.add'
     $query,
     #| Additional directories to search for documentation
     Directories :d(:$doc-sources),
-    #| Use only directories specified with --doc / $RAKUDOC
+    #| Use only directories specified with --doc-sources / $RAKUDOC
     Bool :D(:$no-default-docs),
 ) {
     my $rakudoc = Rakudoc.new:
@@ -73,9 +73,7 @@ multi MAIN(
 multi sub MAIN(
     #| Index all documents found in doc source directories
     Bool :b(:$build-index)!,
-    #| Additional directories to search for documentation
     Directories :d(:$doc-sources),
-    #| Use only directories specified with --doc / $RAKUDOC
     Bool :D(:$no-default-docs),
 ) {
     my $rakudoc = Rakudoc.new:
@@ -91,7 +89,6 @@ multi sub MAIN(
     put "$*PROGRAM :auth<{Rakudoc.^auth}>:api<{Rakudoc.^api}>:ver<{Rakudoc.^ver}>";
 }
 
-#| Show this help message
 multi MAIN(Bool :h(:$help)!, |ARGUMENTS) {
     put $*USAGE;
 }

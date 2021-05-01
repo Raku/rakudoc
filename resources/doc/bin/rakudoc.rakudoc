@@ -5,7 +5,15 @@ rakudoc - A tool for reading Raku documentation
 
 =begin SYNOPSIS
 
-    rakudoc
+    rakudoc [-d|--doc-sources=<Directories>] [-D|--no-default-docs] <query>
+    rakudoc -b|--build-index [-d|--doc-sources=<Directories>] [-D|--no-default-docs]
+    rakudoc -V|--version
+    rakudoc -h|--help <ARGUMENTS>
+
+    <query>                           Example: 'Map', 'IO::Path.add', '.add'
+    -d|--doc-sources=<Directories>    Additional directories to search for documentation
+    -D|--no-default-docs              Use only directories specified with --doc / $RAKUDOC
+    -b|--build-index                  Index all documents found in doc source directories
 
 =end SYNOPSIS
 
@@ -15,6 +23,20 @@ The C<rakudoc> command displays Raku documentation for language features
 and installed modules.
 
 =end DESCRIPTION
+
+=begin ENVIRONMENT
+
+=item C<RAKUDOC>
+— Comma-separated list of doc directories (e.g., C<../doc/doc,./t/test-doc>);
+ignored if C<--doc-sources> option is given
+
+=item C<RAKUDOC_DATA>
+— Path to directory where Rakudoc stores cache and index data
+
+=item C<RAKUDOC_PAGER>
+— Pager program (default: C<$PAGER>)
+
+=end ENVIRONMENT
 
 =LICENSE
 Rakudoc is Copyright (C) 2019–2021, by Joel Schüller, Tim Siegel and others.
