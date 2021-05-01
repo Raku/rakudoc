@@ -1,7 +1,7 @@
 use Documentable;
 use Documentable::Primary;
-use Pod::Cache;
 use Pod::To::Text;
+use Rakudoc::Pod::Cache;
 
 my class X::Rakudoc is Exception {
     has $.message;
@@ -242,7 +242,7 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
     method cache {
         return $!cache if $!cache;
         $!data-dir.mkdir unless $!data-dir.d;
-        $!cache = Pod::Cache.new: :cache-path($!data-dir.add('cache'));
+        $!cache = Rakudoc::Pod::Cache.new: :cache-path($!data-dir.add('cache'));
     }
 
     class Index {

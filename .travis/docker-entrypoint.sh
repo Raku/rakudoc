@@ -50,7 +50,8 @@ if zef install 'p6doc:auth<perl6>:ver<1.003+>' --/test; then
     # Ensure basic usage in a real install environment, with a doc that
     # does NOT exist in testdata/ but surely will be in the full docs
     which rakudoc
-    if rakudoc -n Order; then :; else
+    RAKUDOC_PAGER=cat rakudoc Order
+    if [ $? != 0 ]; then
         which raku
         list_repo_docs raku
         false

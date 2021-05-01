@@ -1,15 +1,15 @@
 use Test;
 use File::Temp;
-use Pod::Cache;
+use Rakudoc::Pod::Cache;
 
 plan 6;
 
 my $test-doc = 't/testdata/mini-doc/test-doc/Type/Map.pod6';
 
 my $cache-path = tempdir.IO.add('cache');
-my $pc = Pod::Cache.new: :$cache-path;
+my $pc = Rakudoc::Pod::Cache.new: :$cache-path;
 
-isa-ok $pc, Pod::Cache,
+isa-ok $pc, Rakudoc::Pod::Cache,
     "Create cache object";
 
 is $cache-path.e, False,

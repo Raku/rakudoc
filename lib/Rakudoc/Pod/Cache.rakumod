@@ -1,4 +1,4 @@
-unit class Pod::Cache;
+unit class Rakudoc::Pod::Cache;
 
 has %.sources is SetHash;
 
