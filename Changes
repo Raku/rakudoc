@@ -1,0 +1,15 @@
+Revision history for Rakudoc
+
+{{$NEXT}}
+
+0.2.0  2021-05-01T13:37:34-04:00
+    - Rewrite of some client internals
+    - Use '.foo' to search for 'foo' method / subroutine
+    - Indexing using '-b' switch
+    - Multiple doc directories supported, using $*REPO and RAKUDOC
+      environemnt variable
+    - RAKUDOC_PAGER environment variable
+    - RAKUDOC_DATA environment variable for cache / index storage directory
+    - Faster caching
+    - Display all matches, not only the first one
+    - Display full text of matching CompUnit if it does not contain Pod docs

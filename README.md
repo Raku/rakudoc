@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Raku/rakudoc.svg?branch=master)](https://travis-ci.org/Raku/rakudoc)
+[![Build Status](https://travis-ci.com/Raku/rakudoc.svg?branch=master)](https://travis-ci.com/Raku/rakudoc)
 
 NAME
 ====
