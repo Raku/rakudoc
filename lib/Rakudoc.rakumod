@@ -8,22 +8,34 @@ my class X::Rakudoc is Exception {
 }
 
 my class X::Rakudoc::BadQuery is X::Rakudoc {}
+my class X::Rakudoc::BadDocument is X::Rakudoc {
+    has $.doc;
+    has $.message;
+    method message {
+        "Error processing document {$!doc.gist}: $!message";
+    }
+}
 
 class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
     has @.doc-sources;
     has $.data-dir;
     has $!cache;
+    has $!index;
+
+    has @!extensions = <pod6 rakudoc>;
+
+    has @.warnings;
 
     submethod TWEAK(
         :$doc-sources is copy,
         :$no-default-docs,
         :$data-dir,
     ) {
+        $doc-sources = self.doc-sources-from-str($doc-sources)
+            if $doc-sources and $doc-sources ~~ Stringy;
         $doc-sources = grep *.defined, $doc-sources<>;
-        if !$doc-sources and %*ENV<RAKUDOC> {
-            $doc-sources = %*ENV<RAKUDOC>.split(',').map(*.trim);
-        }
-        $doc-sources = [$doc-sources<>] unless $doc-sources ~~ Positional;
+        $doc-sources ||= self.doc-sources-from-str(%*ENV<RAKUDOC>);
+        $doc-sources = [$doc-sources<>.grep(*.chars)];
         unless $no-default-docs {
             $doc-sources.append:
                 $*REPO.repo-chain.map({.?abspath.IO // Empty})».add('doc');
@@ -40,7 +52,6 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
 
     role Doc {
         has $.rakudoc;
-        has $.name;
         has $.origin;
 
         method pod { ... }
@@ -49,7 +60,33 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
 
     class Doc::Documentable does Doc {
         has $.def;
+        has $.doc-source;
+        has $.filename;
+
         has $!documentable;
+
+        submethod TWEAK(
+            :$doc-source!,
+            :$filename! is copy,
+        ) {
+            $!doc-source = $doc-source.IO;
+            $!origin = $!doc-source.add($filename);
+            if $!origin.e {
+                $!filename = $filename.IO;
+            }
+            else {
+                with $!rakudoc.search-doc-sources($filename, @$!doc-source) {
+                    $!filename = .first.key;
+                    $!origin = $!doc-source.add($!filename);
+                }
+                else {
+                    $!filename = $filename;
+                    X::Documentable::BadDocument.new(
+                        :doc(self), :message("'$!origin' does not exist")
+                    ).throw;
+                }
+            }
+        }
 
         method pod {
             my @pod;
@@ -58,30 +95,34 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
             @pod || $.documentable.pod;
         }
         method gist {
-            "Doc(*{$!origin.absolute})"
+            "Doc {$!origin.absolute}"
         }
         method filename {
-            ~ $!origin.basename.IO.extension('', :parts(1))
+            # Drop the extension
+            my $f = $!filename.IO.extension('', :parts(1));
+            # Drop the first directory (Documentable Kind dir, e.g. "Type")
+            $f.SPEC.catdir($f.SPEC.splitdir($f).tail(*-1))
         }
         method documentable {
             return $_ with $!documentable;
             my $pod = $!rakudoc.cache.pod($!origin.absolute);
 
-            die join "\n",
-                    "Unexpected: doc pod '$.origin' has multiple elements:",
-                    |$pod.pairs.map(*.raku)
-                if $pod.elems > 1;
+            {
+                # Documentable is strict about Pod contents currently, and will
+                # probably throw (X::Adhoc) for anything that isn't in the main
+                # doc repo.
+                CATCH {
+                    default {
+                        fail X::Rakudoc::BadDocument.new:
+                            :doc(self), :message(~$_)
+                    }
+                }
 
-            # Documentable is strict about Pod contents currently, and will
-            # probably throw (X::Adhoc) for anything that isn't in the main
-            # doc repo.
-            # TODO Add more specific error handling & warning text
-            #CATCH { default { } }
-
-            $!documentable = Documentable::Primary.new:
-                :pod($pod.first),
-                :$.filename,
-                :source-path($!origin.absolute);
+                $!documentable = Documentable::Primary.new:
+                    :pod($pod.first),
+                    :$.filename,
+                    :source-path($!origin.absolute);
+            }
         }
     }
 
@@ -95,6 +136,7 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
                 "$prefix/sources/$source".IO.slurp
             }
             else {
+                $!rakudoc.warn: "Module exists, but no source file for {self}";
                 ''
             }
         }
@@ -104,7 +146,7 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
             # TODO Find docs in resources/doc
         }
         method gist {
-            "Doc({$!origin.repo.prefix} {$!origin})"
+            "Doc {$!origin.repo.prefix} {$!origin}"
         }
         method filename {
             ~ $!origin
@@ -145,10 +187,12 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
             when Request::Name {
                 # Names can match either a doc file or an installed module
                 flat
-                    self.search-doc-sources($req.name).map({
-                        Doc::Documentable.new: :rakudoc(self),
-                            :origin($_), :def($req.def)
-                    }),
+                    self.search-doc-sources($req.name, self.doc-sources)
+                        .map({
+                            Doc::Documentable.new: :rakudoc(self),
+                                :filename(.key), :doc-source(.value),
+                                :def($req.def)
+                        }),
                     self!locate-curli-module(~$req.name).map({
                         Doc::CompUnit.new: :rakudoc(self),
                             :origin($_), :def($req.def);
@@ -156,20 +200,39 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
             }
 
             when Request::Def {
-                note "NYI search by method/routine definition";
-                Empty
+                self.index.def($req.def).map: {
+                    Doc::Documentable.new: :rakudoc(self),
+                        :filename(.key), :doc-source(.value),
+                        :def($req.def);
+                }
             }
         }
     }
 
-    method search-doc-sources($str) {
+    method search-doc-sources($str, @doc-sources) {
         my $fragment = reduce { $^a.add($^b) }, '.'.IO, | $str.split('::');
 
-        grep *.e,
-        map -> $dir, $ext { $dir.add($fragment).extension(:0parts, $ext) },
-        flat @!doc-sources.map({
-                | .dir(:test(*.starts-with('.').not)).grep(*.d)
-            }) X <pod6 rakudoc>
+        # Add extension unless it already has one
+        my @fragments = $fragment.extension(:parts(1))
+                ?? $fragment
+                !! @!extensions.map({ $fragment.extension($_, :parts(0)) });
+
+        gather for @doc-sources.map(*.IO) -> $doc-source {
+            for @fragments -> $fragment {
+                if $doc-source.add($fragment).e {
+                    take $fragment => $doc-source
+                }
+                else {
+                    for $doc-source.dir(:test(*.starts-with('.').not))
+                            .grep(*.d)
+                    {
+                        with .basename.IO.add($fragment) {
+                            take $_ => $doc-source if $doc-source.add($_).e
+                        }
+                    }
+                }
+            }
+        }
     }
 
     method render(Doc $doc) {
@@ -180,6 +243,93 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
         return $!cache if $!cache;
         $!data-dir.mkdir unless $!data-dir.d;
         $!cache = Pod::Cache.new: :cache-path($!data-dir.add('cache'));
+    }
+
+    class Index {
+        has $.rakudoc;
+        has $.index-dir;
+        has $!defs;
+
+        method def($needle) {
+            grep { state %seen; not %seen{$_}++ },
+                $!rakudoc.doc-sources.map: -> $doc-source {
+                    | .map({ $_ => $doc-source })
+                    with $.defs{ $doc-source }{ $needle }
+                }
+        }
+
+        method defs {
+            self!load unless $!defs.defined;
+            $!defs
+        }
+
+        method build {
+            $!index-dir.mkdir unless $!index-dir.d;
+            for $!rakudoc.doc-sources -> $doc-source {
+                my %defs;
+                my $index = self!source-index($doc-source);
+                my $docs = $!rakudoc.enumerate-docs-dir($doc-source);
+                note "Indexing {+$docs} docs",
+                    " from '$doc-source' in '$!index-dir'";
+                for @$docs {
+                    my $dd = Doc::Documentable.new: :$!rakudoc,
+                        :$doc-source,
+                        :filename(.IO.relative($doc-source));
+                    with $dd.documentable -> $doc {
+                        for $doc.defs -> $def {
+                            %defs{$def.name}.push($doc.filename)
+                        }
+                    }
+                    else {
+                        when Failure {
+                            $!rakudoc.warn: .exception.message
+                        }
+                        default {
+                            .throw
+                        }
+                    }
+                }
+
+                $index.spurt: join '', map { ($_, |%defs{$_}).join("\t") ~ "\n" },
+                        %defs.keys.sort;
+
+                $!defs{$doc-source} = %defs;
+            }
+            $!defs
+        }
+
+        method !load {
+            for $!rakudoc.doc-sources -> $doc-source {
+                my $index = self!source-index($doc-source);
+                $!defs{$doc-source} = do
+                    if $index.e {
+                        hash $index.lines».split("\t").map:
+                                -> ($def, *@names) { $def => @names }
+                    }
+                    else {
+                        $++ or $!rakudoc.warn: "Run 'rakudoc -b' to build index:";
+                        $!rakudoc.warn: "- no index built for '$doc-source'";
+                        hash Empty
+                    }
+                    ;
+            }
+        }
+
+        method !source-index($source) {
+            use nqp;
+            $!index-dir.add: nqp::sha1($source.absolute)
+        }
+    }
+
+    method index {
+        return $!index if $!index;
+        $!data-dir.mkdir unless $!data-dir.d;
+        $!index = Index.new: :rakudoc(self),
+                    :index-dir($!data-dir.add('index'));
+    }
+
+    method warn($warning) {
+        @!warnings.push: $warning;
     }
 
     method !resolve-data-dir($data-dir) {
@@ -217,5 +367,22 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.1.9> {
         # TODO This is only the first one; keep on searching somehow?
         my $cu = try $*REPO.need(CompUnit::DependencySpecification.new: :$short-name);
         $cu // Empty
+    }
+
+    method enumerate-docs-dir($doc) {
+        $doc.dir.map: {
+            unless .basename.starts-with('.') {
+                if .d {
+                    | self.enumerate-docs-dir($_)
+                }
+                else {
+                    $_ if .extension eq any(@!extensions)
+                }
+            }
+        }
+    }
+
+    method doc-sources-from-str($str) {
+        ($str // '').split(',')».trim
     }
 }

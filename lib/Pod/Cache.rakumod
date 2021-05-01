@@ -24,7 +24,7 @@ method !compunit-handle($pod-file-path) {
     %!ids{$pod-file-path} = $id;
     my ($handle, $) = $!precomp-repo.load( $id, :src($pod-file-path), :since($t) );
     unless $handle {
-        note "Caching '$pod-file-path' to '$!cache-path'";
+        #note "Caching '$pod-file-path' to '$!cache-path'";
         $handle = $!precomp-repo.try-load(
             CompUnit::PrecompilationDependency::File.new(
                 :src($pod-file-path),

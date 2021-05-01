@@ -23,8 +23,18 @@ our proto MAIN(|) is export {
     True;
 }
 
-sub display(*@docs) {
-    my $text = @docs.join("\n\n{'=' x 78}\n");;
+sub display($rakudoc, *@docs) {
+    my $text = '';
+
+    if $rakudoc.warnings {
+        $text ~= "* WARNING\n" ~ $rakudoc.warnings.map({"* $_\n"}).join ~ "\n";
+        $rakudoc.warnings = Empty;
+    }
+
+    $text ~= join "\n\n", @docs.map: {
+        "# {.gist}\n\n" ~ $rakudoc.render($_)
+    }
+
     my $pager = $*OUT.t && [//] |%*ENV<RAKUDOC_PAGER PAGER>, 'more';
     if $pager {
         # TODO Use Shell::WordSplit or whatever is out there; for now this
@@ -37,16 +47,42 @@ sub display(*@docs) {
     }
 }
 
+subset Directories of Str;
+# Positional handling is buggy, rejects specifying just one time
+#subset Directory of Positional where { all($_) ~~ Str };
+
 multi MAIN(
-    #| Examples: 'Map'
+    #| Example: 'Map', 'IO::Path', 'IO::Path.'
     $query,
+    #| Additional directories to search for documentation
+    Directories :d(:$doc-sources),
+    #| Use only directories specified with --doc / $RAKUDOC
+    Bool :D(:$no-default-docs),
 ) {
-    my $rakudoc = Rakudoc.new;
+    my $rakudoc = Rakudoc.new:
+        :$doc-sources,
+        :$no-default-docs,
+        ;
     my $request = $rakudoc.request: $query;
     my @docs = $rakudoc.search: $request
         or die X::Rakudoc.new: :message("No results for $request");
 
-    display @docs.map: { $rakudoc.render($_) };
+    display $rakudoc, @docs;
+}
+
+multi sub MAIN(
+    #| Index all documents found in doc source directories
+    Bool :b(:$build-index)!,
+    #| Additional directories to search for documentation
+    Directories :d(:$doc-sources),
+    #| Use only directories specified with --doc / $RAKUDOC
+    Bool :D(:$no-default-docs),
+) {
+    my $rakudoc = Rakudoc.new:
+        :$doc-sources,
+        :$no-default-docs,
+        ;
+    $rakudoc.index.build;
 }
 
 multi sub MAIN(
@@ -55,6 +91,7 @@ multi sub MAIN(
     put "$*PROGRAM :auth<{Rakudoc.^auth}>:api<{Rakudoc.^api}>:ver<{Rakudoc.^ver}>";
 }
 
-multi MAIN(Bool :h(:$help)!, |_) {
+#| Show this help message
+multi MAIN(Bool :h(:$help)!, |ARGUMENTS) {
     put $*USAGE;
 }

@@ -1,6 +1,7 @@
 # Rakudoc
 rakudoc-cache/
 /Rakudoc-[0-9]*
+/t/test-cache/
 
 # Raku
 .precomp/

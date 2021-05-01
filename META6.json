@@ -8,7 +8,7 @@
   "build-depends": [
   ],
   "depends": [
-    "Documentable:ver<1.2.5+>"
+    "Documentable:ver<2.0.1+>"
   ],
   "description": "A tool for reading Raku documentation",
   "license": "Artistic-2.0",
@@ -30,6 +30,7 @@
   ],
   "test-depends": [
     "IO::MiddleMan:ver<1.001003+>",
+    "File::Directory::Tree",
     "File::Temp:ver<0.0.8+>"
   ],
   "version": "0.1.9"
