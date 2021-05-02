@@ -16,7 +16,7 @@ my class X::Rakudoc::BadDocument is X::Rakudoc {
     }
 }
 
-class Rakudoc:auth<github:Raku>:api<1>:ver<0.2.1> {
+class Rakudoc:auth<github:Raku>:api<1>:ver<0.2.2> {
     has @.doc-sources;
     has $.data-dir;
     has $!cache;

@@ -1,6 +1,8 @@
 Revision history for rakudoc
 
 {{$NEXT}}
+
+0.2.2  2021-05-02T17:57:46-04:00
     - Import test-doc data directly to this repo (copied from
       Raku/Documentable), rather than rely on outdated testdata repo, to fix
       running tests without git submodule init.

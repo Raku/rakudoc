@@ -34,5 +34,5 @@
     "File::Directory::Tree",
     "File::Temp:ver<0.0.8+>"
   ],
-  "version": "0.2.1"
+  "version": "0.2.2"
 }
