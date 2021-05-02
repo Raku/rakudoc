@@ -3,6 +3,8 @@ Revision history for rakudoc
 {{$NEXT}}
     - Rename to "rakudoc" from "Rakudoc"; "zef install rakudoc" will just
       work
+    - Look for docs in distribution files (resources/*, bin/*, etc.)
+    - Allow 'rakudoc ./path/to/a/file.rakudoc' to work
 
 0.2.0  2021-05-01T13:37:34-04:00
     - Rewrite of some client internals

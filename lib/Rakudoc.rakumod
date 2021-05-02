@@ -47,19 +47,18 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.2.0> {
 
     role Request {
         has $.rakudoc;
-        has $.section;
     }
 
     role Doc {
         has $.rakudoc;
         has $.origin;
+        has $.def;
 
         method pod { ... }
         method gist { ... }
     }
 
     class Doc::Documentable does Doc {
-        has $.def;
         has $.doc-source;
         has $.filename;
 
@@ -126,9 +125,21 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.2.0> {
         }
     }
 
-    class Doc::CompUnit does Doc {
-        has $.def;
+    class Doc::Handle does Doc {
+        method !source {
+            $!origin.slurp
+        }
+        method pod {
+            # TODO Parsing Pod
+            # TODO Handle $.def
+            self!source
+        }
+        method gist {
+            "Doc {$!origin.?path // $!origin.gist}"
+        }
+    }
 
+    class Doc::CompUnit does Doc {
         method !source {
             my $prefix = $!origin.repo.prefix;
             my $source = $!origin.distribution.meta<source>;
@@ -143,7 +154,6 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.2.0> {
         method pod {
             $!rakudoc.cache.pod($!origin.handle) || self!source
             # TODO Handle $.def
-            # TODO Find docs in resources/doc
         }
         method gist {
             "Doc {$!origin.repo.prefix} {$!origin}"
@@ -164,6 +174,11 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.2.0> {
         method Str { "'.{$.def}'" }
     }
 
+    class Request::Path does Request {
+        has $.path;
+        method Str { "'{$.path}'" }
+    }
+
     grammar Request::Grammar {
         token TOP { <module> <definition>? | <definition> }
         token module { <-[\s.]> + }
@@ -171,6 +186,9 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.2.0> {
     }
 
     method request(Str $query) {
+        return Request::Path.new: :path($query)
+            if $query.IO.e;
+
         Request::Grammar.new.parse($query)
             or die X::Rakudoc::BadQuery.new: :message("unrecognized query: $query");
 
@@ -193,10 +211,14 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.2.0> {
                                 :filename(.key), :doc-source(.value),
                                 :def($req.def)
                         }),
+                    self.search-repos(~$req.name).map({
+                        Doc::Handle.new: :rakudoc(self),
+                            :origin($_), :def($req.def)
+                    }),
                     self!locate-curli-module(~$req.name).map({
                         Doc::CompUnit.new: :rakudoc(self),
-                            :origin($_), :def($req.def);
-                    })
+                            :origin($_), :def($req.def)
+                    }),
             }
 
             when Request::Def {
@@ -206,7 +228,25 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.2.0> {
                         :def($req.def);
                 }
             }
+
+            when Request::Path {
+                Doc::Handle.new: :rakudoc(self), :origin(.path.IO)
+            }
         }
+    }
+
+    method search-repos($str) {
+        my $fragment = IO::Spec::Unix.catdir: $str.split('::');
+
+        map -> $dist {
+            | $dist.key.<files>.keys.grep(/ '/' $fragment '.' /).map({
+                note "FILE {.raku}";
+                $dist.value.content($_)
+            })
+        },
+            map { .read-dist()(.dist-id) => $_ },
+            grep *.defined,
+            flat $*REPO.repo-chain.map(*.?candidates($str))
     }
 
     method search-doc-sources($str, @doc-sources) {
