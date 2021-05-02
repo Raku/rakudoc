@@ -1,6 +1,8 @@
 Revision history for rakudoc
 
 {{$NEXT}}
+
+0.2.1  2021-05-02T16:00:08-04:00
     - Rename to "rakudoc" from "Rakudoc"; "zef install rakudoc" will just
       work
     - Look for docs in distribution files (resources/*, bin/*, etc.)
