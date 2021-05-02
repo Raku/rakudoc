@@ -15,7 +15,7 @@ SYNOPSIS
 
     <query>                           Example: 'Map', 'IO::Path.add', '.add'
     -d|--doc-sources=<Directories>    Additional directories to search for documentation
-    -D|--no-default-docs              Use only directories specified with --doc / $RAKUDOC
+    -D|--no-default-docs              Use only directories in --doc / $RAKUDOC
     -b|--build-index                  Index all documents found in doc source directories
 
 DESCRIPTION

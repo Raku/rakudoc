@@ -56,7 +56,7 @@ multi MAIN(
     $query,
     #| Additional directories to search for documentation
     Directories :d(:$doc-sources),
-    #| Use only directories specified with --doc-sources / $RAKUDOC
+    #| Use only directories in --doc-sources / $RAKUDOC
     Bool :D(:$no-default-docs),
 ) {
     my $rakudoc = Rakudoc.new:

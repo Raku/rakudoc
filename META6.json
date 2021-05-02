@@ -12,7 +12,7 @@
   ],
   "description": "A tool for reading Raku documentation",
   "license": "Artistic-2.0",
-  "name": "Rakudoc",
+  "name": "rakudoc",
   "perl": "6.d",
   "provides": {
     "Rakudoc": "lib/Rakudoc.rakumod",
@@ -21,6 +21,7 @@
   },
   "raku": "6.d",
   "resources": [
+    "doc/bin/rakudoc.rakudoc"
   ],
   "source-url": "https://github.com/Raku/rakudoc.git",
   "support": {
