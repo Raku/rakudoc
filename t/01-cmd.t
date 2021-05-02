@@ -1,7 +1,7 @@
 use Test;
 
 %*ENV<RAKUDOC_TEST> = '1';
-%*ENV<RAKUDOC> = 't/testdata/mini-doc/test-doc';
+%*ENV<RAKUDOC> = 't/test-doc';
 
 my @tests =
     \('test-no-match'), [ False, / ^ $ /, / No .* 'test-no-match' / ],

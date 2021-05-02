@@ -2,7 +2,7 @@ use Test;
 use Rakudoc;
 
 %*ENV<RAKUDOC_TEST> = '1';
-%*ENV<RAKUDOC> = 't/testdata/mini-doc/test-doc';
+%*ENV<RAKUDOC> = 't/test-doc';
 
 plan 2;
 

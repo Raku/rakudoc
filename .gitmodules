@@ -1,3 +1,0 @@
-[submodule "t/testdata/mini-doc"]
-    path = t/testdata/mini-doc
-    url = https://github.com/antoniogamiz/mini-doc

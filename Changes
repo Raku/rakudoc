@@ -1,6 +1,9 @@
 Revision history for rakudoc
 
 {{$NEXT}}
+    - Import test-doc data directly to this repo (copied from
+      Raku/Documentable), rather than rely on outdated testdata repo, to fix
+      running tests without git submodule init.
 
 0.2.1  2021-05-02T16:00:08-04:00
     - Rename to "rakudoc" from "Rakudoc"; "zef install rakudoc" will just
