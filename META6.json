@@ -8,7 +8,7 @@
   "build-depends": [
   ],
   "depends": [
-      "Pod::Utilities:ver<0.0.1+>"
+    "Pod::Utilities:ver<0.0.1+>"
   ],
   "description": "A tool for reading Raku documentation",
   "license": "Artistic-2.0",
@@ -17,6 +17,7 @@
   "provides": {
     "Rakudoc": "lib/Rakudoc.rakumod",
     "Rakudoc::CMD": "lib/Rakudoc/CMD.rakumod",
+    "Rakudoc::Documentable": "lib/Rakudoc/Documentable.rakumod",
     "Rakudoc::Pod::Cache": "lib/Rakudoc/Pod/Cache.rakumod"
   },
   "raku": "6.d",
@@ -34,5 +35,5 @@
     "File::Directory::Tree",
     "File::Temp:ver<0.0.8+>"
   ],
-  "version": "0.2.2"
+  "version": "0.2.3"
 }
