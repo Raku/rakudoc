@@ -1,5 +1,4 @@
-use Documentable;
-use Documentable::Primary;
+use Rakudoc::Documentable;
 use Pod::To::Text;
 use Rakudoc::Pod::Cache;
 
