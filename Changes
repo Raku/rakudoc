@@ -2,6 +2,10 @@ Revision history for rakudoc
 
 {{$NEXT}}
 
+0.2.4  2021-05-03T20:40:29-04:00
+    - Fix portability issue (do not call .read-dist on
+      CompUnit::Repository::Distribution)
+
 0.2.3  2021-05-03T18:00:03-04:00
     - Copy simplified Documentable class into Rakudoc::Documentable, to
       remove complex dependency

@@ -15,7 +15,7 @@ my class X::Rakudoc::BadDocument is X::Rakudoc {
     }
 }
 
-class Rakudoc:auth<github:Raku>:api<1>:ver<0.2.3> {
+class Rakudoc:auth<github:Raku>:api<1>:ver<0.2.4> {
     has @.doc-sources;
     has $.data-dir;
     has $!cache;
@@ -238,12 +238,10 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.2.3> {
         my $fragment = IO::Spec::Unix.catdir: $str.split('::');
 
         map -> $dist {
-            | $dist.key.<files>.keys.grep(/ '/' $fragment '.' /).map({
-                note "FILE {.raku}";
-                $dist.value.content($_)
-            })
-        },
-            map { .read-dist()(.dist-id) => $_ },
+                | $dist.meta.<files>.keys.grep(/ '/' $fragment '.' /).map({
+                    $dist.content($_)
+                })
+            },
             grep *.defined,
             flat $*REPO.repo-chain.map(*.?candidates($str))
     }

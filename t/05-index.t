@@ -45,7 +45,6 @@ subtest 'Validate every indexed source', {
 
 subtest 'Validate lookup of every def', {
     my $defs = set $index.defs.values.map(*.keys».list).flat;
-    dd $defs;
     plan 1 + $defs.elems * 2;
     ok $defs.elems > 5, "Test docs contain at least 5 distinct defs (sanity)";
     for $defs.keys.sort -> $def {
