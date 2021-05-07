@@ -26,25 +26,33 @@ our proto MAIN(|) is export {
 sub display($rakudoc, *@docs) {
     my $text = '';
 
-    if $rakudoc.warnings {
-        $text ~= "* WARNING\n" ~ $rakudoc.warnings.map({"* $_\n"}).join ~ "\n";
-        $rakudoc.warnings = Empty;
-    }
-
-    $text ~= join "\n\n", @docs.map: {
-        "# {.gist}\n\n" ~ $rakudoc.render($_)
-    }
-
+    my $fh;
     my $pager = $*OUT.t && [//] |%*ENV<RAKUDOC_PAGER PAGER>, 'more';
     if $pager {
         # TODO Use Shell::WordSplit or whatever is out there; for now this
         # makes a simple 'less -Fr' work
         $pager = run :in, |$pager.comb(/\S+/);
-        $pager.in.spurt($text, :close);
+        $fh = $pager.in;
     }
     else {
-        put $text;
+        $fh = $*OUT;
     }
+
+    for @docs {
+        $fh.print: "\n" if $++;
+        $fh.print: "# {.gist}\n\n";
+
+        my $text = $rakudoc.render($_);
+
+        $fh.put: $text;
+    }
+
+    if $rakudoc.warnings {
+        $fh.put: "* WARNING\n" ~ $rakudoc.warnings.map({"* $_\n"}).join;
+        $rakudoc.warnings = Empty;
+    }
+
+    $fh.close;
 }
 
 subset Directories of Str;

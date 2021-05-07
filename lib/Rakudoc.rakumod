@@ -53,6 +53,7 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.2.4> {
         has $.origin;
         has $.def;
 
+        method source { ... }
         method pod { ... }
         method gist { ... }
     }
@@ -86,6 +87,9 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.2.4> {
             }
         }
 
+        method source {
+            state $ //= $!origin.slurp
+        }
         method pod {
             my @pod;
             @pod = $.documentable.defs.grep({.name eq $!def}).map(*.pod)
@@ -125,13 +129,13 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.2.4> {
     }
 
     class Doc::Handle does Doc {
-        method !source {
-            $!origin.slurp
+        method source {
+            state $ //= $!origin.slurp
         }
         method pod {
             # TODO Parsing Pod
             # TODO Handle $.def
-            self!source
+            ''
         }
         method gist {
             "Doc {$!origin.?path // $!origin.gist}"
@@ -139,11 +143,11 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.2.4> {
     }
 
     class Doc::CompUnit does Doc {
-        method !source {
+        method source {
             my $prefix = $!origin.repo.prefix;
             my $source = $!origin.distribution.meta<source>;
             if $prefix && $source && "$prefix/sources/$source".IO.e {
-                "$prefix/sources/$source".IO.slurp
+                state $ //= "$prefix/sources/$source".IO.slurp
             }
             else {
                 $!rakudoc.warn: "Module exists, but no source file for {self}";
@@ -151,7 +155,7 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.2.4> {
             }
         }
         method pod {
-            $!rakudoc.cache.pod($!origin.handle) || self!source
+            $!rakudoc.cache.pod($!origin.handle)
             # TODO Handle $.def
         }
         method gist {
@@ -243,7 +247,7 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.2.4> {
                 })
             },
             grep *.defined,
-            flat $*REPO.repo-chain.map(*.?candidates($str))
+            flat $*REPO.repo-chain.map({ .?candidates($str).?head })
     }
 
     method search-doc-sources($str, @doc-sources) {
@@ -273,7 +277,14 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.2.4> {
     }
 
     method render(Doc $doc) {
-        join "\n\n", map { pod2text($_).trim ~ "\n" }, $doc.pod
+        my $text = join "\n\n",
+                grep / \w /,
+                map { pod2text($_).trim ~ "\n" },
+                $doc.pod;
+
+        # Should pod2text come up empty, present the raw document source
+        $text ||= $doc.source;
+        $text
     }
 
     method cache {

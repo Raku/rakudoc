@@ -14,34 +14,34 @@ plan 2;
 my $rakudoc = Rakudoc.new;
 
 subtest "File::Temp" => {
-    plan 3;
-    my $request = $rakudoc.request: 'File::Temp';
-    my @docs = $rakudoc.search: $request;
-    with @docs.first {
-        isa-ok $_, Rakudoc::Doc::CompUnit,
-            "Doc repr for File::Temp compunit";
-        like .gist, / '/site' .* 'File::Temp' /, "Gist looks okay";
-        like $rakudoc.render($_), / ^ 'NAME' \s+ 'File::Temp' /,
-            "Render looks okay";
-    }
-    else {
-        skip "Module 'File::Temp' not installed", 3;
-    }
+    run-test('File::Temp', / ^ 'NAME' \s+ 'File::Temp' /);
 }
 
 subtest "IO::MiddleMan" => {
+    # IO::MiddleMan does not contain any Pod documentation, so it will
+    # render as the full source text
+    run-test('IO::MiddleMan', / ^ 'unit class IO::MiddleMan' /);
+}
+
+sub run-test($short-name, $rendered-match) {
     plan 3;
-    my $request = $rakudoc.request: 'IO::MiddleMan';
+    my $request = $rakudoc.request: $short-name;
     my @docs = $rakudoc.search: $request;
     with @docs.first {
         isa-ok $_, Rakudoc::Doc::CompUnit,
-            "Doc repr for IO::MiddleMan compunit";
-        like .gist, / '/site' .* 'IO::MiddleMan' /, "Gist looks okay";
-        like $rakudoc.render($_), / ^ 'unit class IO::MiddleMan' /,
-            "Render (raw source) looks okay";
+            "Doc repr for $short-name compunit";
+        like .gist, / '/' .* $short-name /, "Gist looks okay";
+
+        # Zef puts uninstalled prerequisites in ~/.zef/store/*, and the
+        # Distribution object does not yield its $contents properly; it
+        # renders "\n", but works fine once modules are installed
+        todo "Testing not-yet-installed prerequisites unsupported"
+            if .gist.contains('zef');
+        like $rakudoc.render($_), $rendered-match,
+            "Render looks okay";
     }
     else {
-        skip "Module 'IO::MiddleMan' not installed", 3;
+        skip "Module '$short-name' not installed", 3;
     }
 }
 

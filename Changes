@@ -1,6 +1,13 @@
 Revision history for rakudoc
 
 {{$NEXT}}
+    - Relax 04-compunit.t tests so they pass when installing via Zef and the
+      prerequisite modules are not already installed
+    - Cache source contents to ensure the IO handle is only slurped once
+    - Ensure that, regardless of where the doc is found, its raw source is
+      used if the rendered text is empty
+    - Only use the first candidate from each repo when searching for doc
+      files (i.e., don't look in older versions of a distribution)
 
 0.2.4  2021-05-03T20:40:29-04:00
     - Fix portability issue (do not call .read-dist on
