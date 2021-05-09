@@ -51,7 +51,7 @@ sub display($rakudoc, *@docs) {
         $fh.close;
 
         # Ensure pager is done
-        $pager.exitcode;
+        #$pager.exitcode;
     }
 
     if $rakudoc.warnings {
