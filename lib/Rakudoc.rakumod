@@ -247,7 +247,7 @@ class Rakudoc:auth<github:Raku>:api<1>:ver<0.2.4> {
                 })
             },
             grep *.defined,
-            flat $*REPO.repo-chain.map({ .?candidates($str).?head })
+            flat $*REPO.repo-chain.map({ .head with .?candidates($str) })
     }
 
     method search-doc-sources($str, @doc-sources) {

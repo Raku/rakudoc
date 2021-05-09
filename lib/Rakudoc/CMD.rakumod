@@ -47,12 +47,17 @@ sub display($rakudoc, *@docs) {
         $fh.put: $text;
     }
 
-    if $rakudoc.warnings {
-        $fh.put: "* WARNING\n" ~ $rakudoc.warnings.map({"* $_\n"}).join;
-        $rakudoc.warnings = Empty;
+    if $pager {
+        $fh.close;
+
+        # Ensure pager is done
+        $pager.exitcode;
     }
 
-    $fh.close;
+    if $rakudoc.warnings {
+        $*ERR.print: "* WARNING\n" ~ $rakudoc.warnings.map({"* $_\n"}).join;
+        $rakudoc.warnings = Empty;
+    }
 }
 
 subset Directories of Str;
@@ -97,6 +102,14 @@ multi sub MAIN(
     put "$*PROGRAM :auth<{Rakudoc.^auth}>:api<{Rakudoc.^api}>:ver<{Rakudoc.^ver}>";
 }
 
-multi MAIN(Bool :h(:$help)!, |ARGUMENTS) {
-    put $*USAGE;
+sub help-text {
+    $*USAGE.subst(:g, $*PROGRAM, $*PROGRAM.basename)
+}
+multi MAIN(Bool :h(:$help)!) {
+    put help-text();
+}
+
+multi MAIN(|) is hidden-from-USAGE {
+    note help-text();
+    exit 2;
 }
